@@ -1,0 +1,128 @@
+// MoniWallet ER diagram source (Portfolio 1)
+// Paste this into https://dbdiagram.io to see and export the diagram.
+
+Project moniwallet {
+  database_type: 'PostgreSQL'
+  Note: 'MoniWallet, a simulated mobile money operator. All data is made up.'
+}
+
+Table customer {
+  customer_id bigserial [pk]
+  full_name varchar(120) [not null]
+  phone_number varchar(15) [not null, unique]
+  email varchar(120) [unique]
+  date_of_birth date [not null]
+  status varchar(12) [not null, default: 'active', note: 'active, suspended, closed']
+  created_at timestamptz [not null, default: `now()`]
+}
+
+Table kyc_record {
+  kyc_id bigserial [pk]
+  customer_id bigint [not null]
+  id_type varchar(20) [not null, note: 'NIN, BVN, passport, drivers_licence']
+  id_number varchar(30) [not null]
+  kyc_level smallint [not null, note: '1 to 3']
+  verified_at timestamptz
+
+  indexes {
+    (id_type, id_number) [unique]
+  }
+}
+
+Table wallet {
+  wallet_id bigserial [pk]
+  customer_id bigint [not null]
+  currency char(3) [not null, default: 'NGN']
+  balance numeric(14,2) [not null, default: 0, note: 'never negative']
+  status varchar(10) [not null, default: 'active', note: 'active, frozen, closed']
+  created_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (customer_id, currency) [unique]
+  }
+}
+
+Table agent {
+  agent_id bigserial [pk]
+  agent_name varchar(120) [not null]
+  phone_number varchar(15) [not null, unique]
+  location varchar(120) [not null]
+  status varchar(10) [not null, default: 'active', note: 'active, suspended']
+}
+
+Table biller {
+  biller_id bigserial [pk]
+  biller_name varchar(80) [not null, unique]
+  category varchar(20) [not null, note: 'electricity, tv, airtime, data, water']
+}
+
+Table transaction {
+  transaction_id bigserial [pk]
+  type varchar(15) [not null, note: 'transfer, deposit, withdrawal, bill_payment, reversal']
+  from_wallet_id bigint
+  to_wallet_id bigint
+  agent_id bigint
+  biller_id bigint
+  reverses_id bigint [note: 'only set when type is reversal']
+  amount numeric(14,2) [not null, note: 'greater than 0']
+  status varchar(10) [not null, default: 'pending', note: 'pending, success, failed, reversed']
+  flagged boolean [not null, default: false]
+  created_at timestamptz [not null, default: `now()`]
+}
+
+Table ledger_entry {
+  entry_id bigserial [pk]
+  transaction_id bigint [not null]
+  wallet_id bigint [not null]
+  direction char(1) [not null, note: 'D or C']
+  amount numeric(14,2) [not null]
+  balance_after numeric(14,2) [not null]
+  created_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (transaction_id, wallet_id, direction) [unique]
+  }
+}
+
+Table device {
+  device_id bigserial [pk]
+  customer_id bigint [not null]
+  device_model varchar(80) [not null]
+  os varchar(30) [not null]
+  trusted boolean [not null, default: false]
+  first_seen timestamptz [not null, default: `now()`]
+}
+
+Table session {
+  session_id bigserial [pk]
+  customer_id bigint [not null]
+  device_id bigint
+  channel varchar(10) [not null, note: 'app, ussd']
+  started_at timestamptz [not null, default: `now()`]
+  ended_at timestamptz
+}
+
+Table audit_log {
+  audit_id bigserial [pk]
+  customer_id bigint
+  action varchar(40) [not null]
+  table_name varchar(40) [not null]
+  record_id bigint
+  details text
+  created_at timestamptz [not null, default: `now()`]
+}
+
+// Relationships (ON DELETE rules are the same as in schema.sql)
+Ref: kyc_record.customer_id > customer.customer_id [delete: cascade]
+Ref: wallet.customer_id > customer.customer_id [delete: restrict]
+Ref: transaction.from_wallet_id > wallet.wallet_id [delete: restrict]
+Ref: transaction.to_wallet_id > wallet.wallet_id [delete: restrict]
+Ref: transaction.agent_id > agent.agent_id [delete: set null]
+Ref: transaction.biller_id > biller.biller_id [delete: set null]
+Ref: transaction.reverses_id > transaction.transaction_id [delete: restrict]
+Ref: ledger_entry.transaction_id > transaction.transaction_id [delete: restrict]
+Ref: ledger_entry.wallet_id > wallet.wallet_id [delete: restrict]
+Ref: device.customer_id > customer.customer_id [delete: cascade]
+Ref: session.customer_id > customer.customer_id [delete: cascade]
+Ref: session.device_id > device.device_id [delete: set null]
+Ref: audit_log.customer_id > customer.customer_id [delete: set null]
