@@ -20,7 +20,7 @@
 
 | Part | Topic | Marks | Folder | Status |
 |---|---|---|---|---|
-| 1 | Database design and modelling | 7 | [portfolio-1-database-design](portfolio-1-database-design/) | In progress (schema done) |
+| 1 | Database design and modelling | 7 | [portfolio-1-database-design](portfolio-1-database-design/) | Done, except PNG screenshots (text evidence is in `screenshots/`) |
 | 2 | Query processing and optimisation | 7 | [portfolio-2-query-optimisation](portfolio-2-query-optimisation/) | Not started |
 | 3 | Transactions and concurrency | 7 | [portfolio-3-transactions-concurrency](portfolio-3-transactions-concurrency/) | Not started |
 | 4 | NoSQL and advanced data models | 7 | [portfolio-4-nosql](portfolio-4-nosql/) | Not started |
@@ -57,6 +57,7 @@ The LMS asks for this naming, with no spaces:
 
 | Date | Tool | What it was used for | How I checked the output |
 |---|---|---|---|
+| 2026-10-24 | Claude Code | Help drafting the Portfolio 1 database design | Ran the SQL and reviewed it |
 
 ## References
 

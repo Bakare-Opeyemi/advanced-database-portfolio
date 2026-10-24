@@ -1,0 +1,160 @@
+MoniWallet schema evidence (Portfolio 1)
+Captured on 2026-10-24 with psql (PostgreSQL) 14.15 (Homebrew)
+Database: moniwallet_test (a throwaway copy, dropped after this capture)
+Steps: createdb moniwallet_test, then psql -f schema.sql, then psql -f sample-data.sql
+Both files ran with ON_ERROR_STOP=1 and no errors.
+
+================================================================
+moniwallet_test=# \dt
+================================================================
+           List of relations
+ Schema |     Name     | Type  | Owner
+--------+--------------+-------+-------
+ public | agent        | table | pc
+ public | audit_log    | table | pc
+ public | biller       | table | pc
+ public | customer     | table | pc
+ public | device       | table | pc
+ public | kyc_record   | table | pc
+ public | ledger_entry | table | pc
+ public | session      | table | pc
+ public | transaction  | table | pc
+ public | wallet       | table | pc
+(10 rows)
+
+
+================================================================
+moniwallet_test=# \d customer
+================================================================
+                                             Table "public.customer"
+    Column     |           Type           | Collation | Nullable |                    Default
+---------------+--------------------------+-----------+----------+-----------------------------------------------
+ customer_id   | bigint                   |           | not null | nextval('customer_customer_id_seq'::regclass)
+ full_name     | character varying(120)   |           | not null |
+ phone_number  | character varying(15)    |           | not null |
+ email         | character varying(120)   |           |          |
+ date_of_birth | date                     |           | not null |
+ status        | character varying(12)    |           | not null | 'active'::character varying
+ created_at    | timestamp with time zone |           | not null | now()
+Indexes:
+    "customer_pkey" PRIMARY KEY, btree (customer_id)
+    "customer_email_key" UNIQUE CONSTRAINT, btree (email)
+    "customer_phone_number_key" UNIQUE CONSTRAINT, btree (phone_number)
+Check constraints:
+    "customer_phone_number_check" CHECK (phone_number::text ~ '^\+?[0-9]{10,14}$'::text)
+    "customer_status_check" CHECK (status::text = ANY (ARRAY['active'::character varying, 'suspended'::character varying, 'closed'::character varying]::text[]))
+Referenced by:
+    TABLE "audit_log" CONSTRAINT "audit_log_customer_id_fkey" FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE SET NULL
+    TABLE "device" CONSTRAINT "device_customer_id_fkey" FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE
+    TABLE "kyc_record" CONSTRAINT "kyc_record_customer_id_fkey" FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE
+    TABLE "session" CONSTRAINT "session_customer_id_fkey" FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE
+    TABLE "wallet" CONSTRAINT "wallet_customer_id_fkey" FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE RESTRICT
+
+
+================================================================
+moniwallet_test=# \d wallet
+================================================================
+                                           Table "public.wallet"
+   Column    |           Type           | Collation | Nullable |                  Default
+-------------+--------------------------+-----------+----------+-------------------------------------------
+ wallet_id   | bigint                   |           | not null | nextval('wallet_wallet_id_seq'::regclass)
+ customer_id | bigint                   |           | not null |
+ currency    | character(3)             |           | not null | 'NGN'::bpchar
+ balance     | numeric(14,2)            |           | not null | 0
+ status      | character varying(10)    |           | not null | 'active'::character varying
+ created_at  | timestamp with time zone |           | not null | now()
+Indexes:
+    "wallet_pkey" PRIMARY KEY, btree (wallet_id)
+    "wallet_customer_id_currency_key" UNIQUE CONSTRAINT, btree (customer_id, currency)
+Check constraints:
+    "wallet_balance_check" CHECK (balance >= 0::numeric)
+    "wallet_status_check" CHECK (status::text = ANY (ARRAY['active'::character varying, 'frozen'::character varying, 'closed'::character varying]::text[]))
+Foreign-key constraints:
+    "wallet_customer_id_fkey" FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE RESTRICT
+Referenced by:
+    TABLE "ledger_entry" CONSTRAINT "ledger_entry_wallet_id_fkey" FOREIGN KEY (wallet_id) REFERENCES wallet(wallet_id) ON DELETE RESTRICT
+    TABLE "transaction" CONSTRAINT "transaction_from_wallet_id_fkey" FOREIGN KEY (from_wallet_id) REFERENCES wallet(wallet_id) ON DELETE RESTRICT
+    TABLE "transaction" CONSTRAINT "transaction_to_wallet_id_fkey" FOREIGN KEY (to_wallet_id) REFERENCES wallet(wallet_id) ON DELETE RESTRICT
+
+
+================================================================
+moniwallet_test=# \d transaction
+================================================================
+                                               Table "public.transaction"
+     Column     |           Type           | Collation | Nullable |                       Default
+----------------+--------------------------+-----------+----------+-----------------------------------------------------
+ transaction_id | bigint                   |           | not null | nextval('transaction_transaction_id_seq'::regclass)
+ type           | character varying(15)    |           | not null |
+ from_wallet_id | bigint                   |           |          |
+ to_wallet_id   | bigint                   |           |          |
+ agent_id       | bigint                   |           |          |
+ biller_id      | bigint                   |           |          |
+ reverses_id    | bigint                   |           |          |
+ amount         | numeric(14,2)            |           | not null |
+ status         | character varying(10)    |           | not null | 'pending'::character varying
+ flagged        | boolean                  |           | not null | false
+ created_at     | timestamp with time zone |           | not null | now()
+Indexes:
+    "transaction_pkey" PRIMARY KEY, btree (transaction_id)
+Check constraints:
+    "transaction_amount_check" CHECK (amount > 0::numeric)
+    "transaction_check" CHECK (type::text <> 'transfer'::text OR from_wallet_id IS NOT NULL AND to_wallet_id IS NOT NULL AND from_wallet_id <> to_wallet_id)
+    "transaction_check1" CHECK (from_wallet_id IS NOT NULL OR to_wallet_id IS NOT NULL)
+    "transaction_check2" CHECK ((type::text = 'reversal'::text) = (reverses_id IS NOT NULL))
+    "transaction_status_check" CHECK (status::text = ANY (ARRAY['pending'::character varying, 'success'::character varying, 'failed'::character varying, 'reversed'::character varying]::text[]))
+    "transaction_type_check" CHECK (type::text = ANY (ARRAY['transfer'::character varying, 'deposit'::character varying, 'withdrawal'::character varying, 'bill_payment'::character varying, 'reversal'::character varying]::text[]))
+Foreign-key constraints:
+    "transaction_agent_id_fkey" FOREIGN KEY (agent_id) REFERENCES agent(agent_id) ON DELETE SET NULL
+    "transaction_biller_id_fkey" FOREIGN KEY (biller_id) REFERENCES biller(biller_id) ON DELETE SET NULL
+    "transaction_from_wallet_id_fkey" FOREIGN KEY (from_wallet_id) REFERENCES wallet(wallet_id) ON DELETE RESTRICT
+    "transaction_reverses_id_fkey" FOREIGN KEY (reverses_id) REFERENCES transaction(transaction_id) ON DELETE RESTRICT
+    "transaction_to_wallet_id_fkey" FOREIGN KEY (to_wallet_id) REFERENCES wallet(wallet_id) ON DELETE RESTRICT
+Referenced by:
+    TABLE "ledger_entry" CONSTRAINT "ledger_entry_transaction_id_fkey" FOREIGN KEY (transaction_id) REFERENCES transaction(transaction_id) ON DELETE RESTRICT
+    TABLE "transaction" CONSTRAINT "transaction_reverses_id_fkey" FOREIGN KEY (reverses_id) REFERENCES transaction(transaction_id) ON DELETE RESTRICT
+
+
+================================================================
+moniwallet_test=# \d ledger_entry
+================================================================
+                                            Table "public.ledger_entry"
+     Column     |           Type           | Collation | Nullable |                    Default
+----------------+--------------------------+-----------+----------+------------------------------------------------
+ entry_id       | bigint                   |           | not null | nextval('ledger_entry_entry_id_seq'::regclass)
+ transaction_id | bigint                   |           | not null |
+ wallet_id      | bigint                   |           | not null |
+ direction      | character(1)             |           | not null |
+ amount         | numeric(14,2)            |           | not null |
+ balance_after  | numeric(14,2)            |           | not null |
+ created_at     | timestamp with time zone |           | not null | now()
+Indexes:
+    "ledger_entry_pkey" PRIMARY KEY, btree (entry_id)
+    "ledger_entry_transaction_id_wallet_id_direction_key" UNIQUE CONSTRAINT, btree (transaction_id, wallet_id, direction)
+Check constraints:
+    "ledger_entry_amount_check" CHECK (amount > 0::numeric)
+    "ledger_entry_balance_after_check" CHECK (balance_after >= 0::numeric)
+    "ledger_entry_direction_check" CHECK (direction = ANY (ARRAY['D'::bpchar, 'C'::bpchar]))
+Foreign-key constraints:
+    "ledger_entry_transaction_id_fkey" FOREIGN KEY (transaction_id) REFERENCES transaction(transaction_id) ON DELETE RESTRICT
+    "ledger_entry_wallet_id_fkey" FOREIGN KEY (wallet_id) REFERENCES wallet(wallet_id) ON DELETE RESTRICT
+
+
+================================================================
+Row counts after sample-data.sql
+================================================================
+  table_name  | count
+--------------+-------
+ customer     |     5
+ wallet       |     5
+ transaction  |    11
+ ledger_entry |    15
+(4 rows)
+
+
+================================================================
+Reconciliation check from normalisation.md (0 rows means every balance matches the ledger)
+================================================================
+ wallet_id | balance | ledger_balance
+-----------+---------+----------------
+(0 rows)
+
