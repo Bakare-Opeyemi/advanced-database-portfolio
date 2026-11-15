@@ -74,7 +74,7 @@ The LMS asks for this naming, with no spaces:
 
 | Date | Tool | What it was used for | How the output was checked |
 |---|---|---|---|
-| 15 Nov 2026 | Claude (Anthropic) | Writing the scripts, generating the synthetic data, running the experiments, and drafting the documentation | Every script was run on PostgreSQL 14 and MongoDB 7; all figures come from the saved output in `evidence/`, and the built-in integrity checks pass. I reviewed the work and can explain every part of it. |
+| 21 Oct to 15 Nov 2026 | Claude (Anthropic) | Writing the scripts, generating the synthetic data, running the experiments, and drafting the documentation | Every script was run on PostgreSQL 14 and MongoDB 7; all figures come from the saved output in `evidence/`, and the built-in integrity checks pass. I reviewed the work and can explain every part of it. |
 
 ## References
 

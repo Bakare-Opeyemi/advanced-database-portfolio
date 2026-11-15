@@ -64,7 +64,7 @@
 <p><b>Lessons learned.</b> The default isolation level does not stop a read-then-write race. Lock ordering removes deadlocks completely. An index must match a query's filter <i>and</i> its sort. Synchronous replication is a deliberate choice of consistency over availability: I watched a commit block for five seconds, and that is the right behaviour for money but not for telemetry.</p>
 
 <h2>4. AI use declaration</h2>
-<p><b>Tool:</b> Claude (Anthropic). <b>Used for:</b> writing the scripts, generating the synthetic data, running the experiments, and drafting the documentation. <b>Verification:</b> every script was run on PostgreSQL 14 and MongoDB 7, all figures come from the saved output in each <code>evidence/</code> folder, and the built-in integrity checks pass. I reviewed the work and can explain every part of it.</p>
+<p><b>Tool:</b> Claude (Anthropic), 21 October to 15 November 2026. <b>Used for:</b> writing the scripts, generating the synthetic data, running the experiments, and drafting the documentation. <b>Verification:</b> every script was run on PostgreSQL 14 and MongoDB 7, all figures come from the saved output in each <code>evidence/</code> folder, and the built-in integrity checks pass. I reviewed the work and can explain every part of it.</p>
 
 <h2>5. References</h2>
 <div class="refs">
