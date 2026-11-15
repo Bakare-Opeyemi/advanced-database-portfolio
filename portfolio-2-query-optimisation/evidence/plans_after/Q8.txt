@@ -1,0 +1,10 @@
+-- Q8: Partner bank looks up a transaction by its reference
+SELECT txn_id, txn_type, status, amount, created_at
+FROM mw.transactions
+WHERE reference = '8387e97b-9fbf-4302-bd93-3dc33a754e29';
+
+Index Scan using transactions_reference_key on transactions  (cost=0.42..8.44 rows=1 width=41) (actual time=0.002..0.002 rows=1 loops=1)
+  Index Cond: (reference = '8387e97b-9fbf-4302-bd93-3dc33a754e29'::uuid)
+  Buffers: shared hit=4
+Planning Time: 0.011 ms
+Execution Time: 0.004 ms

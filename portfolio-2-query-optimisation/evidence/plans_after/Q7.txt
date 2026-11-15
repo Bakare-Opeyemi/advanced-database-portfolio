@@ -1,0 +1,36 @@
+-- Q7: Top billers by value in October 2026
+SELECT b.name, b.category, count(*) AS payments, sum(t.amount) AS value
+FROM mw.transactions t
+JOIN mw.billers b ON b.biller_id = t.biller_id
+WHERE t.txn_type = 'bill_payment' AND t.status = 'successful'
+  AND t.created_at >= TIMESTAMPTZ '2026-10-01' AND t.created_at < TIMESTAMPTZ '2026-11-01'
+GROUP BY b.name, b.category
+ORDER BY value DESC
+LIMIT 10;
+
+Limit  (cost=425.50..425.53 rows=10 width=60) (actual time=2.779..2.780 rows=10 loops=1)
+  Buffers: shared hit=49
+  ->  Sort  (cost=425.50..425.54 rows=15 width=60) (actual time=2.779..2.779 rows=10 loops=1)
+        Sort Key: (sum(t.amount)) DESC
+        Sort Method: quicksort  Memory: 26kB
+        Buffers: shared hit=49
+        ->  HashAggregate  (cost=425.02..425.21 rows=15 width=60) (actual time=2.773..2.775 rows=15 loops=1)
+              Group Key: b.name, b.category
+              Batches: 1  Memory Usage: 24kB
+              Buffers: shared hit=49
+              ->  Hash Join  (cost=1.75..345.92 rows=7910 width=26) (actual time=0.009..1.300 rows=8929 loops=1)
+                    Hash Cond: (t.biller_id = b.biller_id)
+                    Buffers: shared hit=49
+                    ->  Index Only Scan using ix_txn_bill_time on transactions t  (cost=0.42..322.62 rows=7910 width=10) (actual time=0.003..0.456 rows=8929 loops=1)
+                          Index Cond: ((created_at >= '2026-10-01 00:00:00+01'::timestamp with time zone) AND (created_at < '2026-11-01 00:00:00+01'::timestamp with time zone))
+                          Heap Fetches: 0
+                          Buffers: shared hit=48
+                    ->  Hash  (cost=1.15..1.15 rows=15 width=24) (actual time=0.004..0.005 rows=15 loops=1)
+                          Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                          Buffers: shared hit=1
+                          ->  Seq Scan on billers b  (cost=0.00..1.15 rows=15 width=24) (actual time=0.002..0.002 rows=15 loops=1)
+                                Buffers: shared hit=1
+Planning:
+  Buffers: shared hit=8
+Planning Time: 0.051 ms
+Execution Time: 2.787 ms

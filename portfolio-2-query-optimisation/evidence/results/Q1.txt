@@ -1,0 +1,18 @@
+-- Q1: Customer statement (last 20 ledger lines for one wallet)
+-- 20 row(s) returned, first 15 shown
+created_at | txn_type | reference | direction | amount | balance_after | narration
+2026-10-01 11:34:57.765701+01:00 | transfer | 6968940f-5dd6-4c78-9b45-0f00117157ea | C | 500.00 | 993390.00 | Transfer
+2026-09-18 19:54:05.821660+01:00 | transfer | e3be3dda-edeb-4fc2-85a8-eea2960dbc83 | D | 99810.00 | 992890.00 | Transfer
+2026-08-28 00:40:01.485676+01:00 | transfer | 49d187ea-31ad-455e-b2b0-1726a0e2903e | C | 600.00 | 1092700.00 | Transfer
+2026-08-15 08:30:52.415702+01:00 | transfer | f3621ad3-2ce3-4cff-994c-5de9af904ff3 | C | 67300.00 | 1092100.00 | Transfer
+2026-08-11 17:47:44.616047+01:00 | bill_payment | 745a4835-42ad-4845-affe-77fedd13809e | D | 21000.00 | 1024800.00 | Bill Payment
+2026-08-07 21:08:56.722988+01:00 | transfer | 86e70a3c-d38c-466d-8038-05799b5501ef | C | 10600.00 | 1045800.00 | Transfer
+2026-08-01 16:08:49.276438+01:00 | transfer | 6d35c6c9-ed28-46a0-8c7f-0997f9c7ec41 | C | 122700.00 | 1035200.00 | Transfer
+2026-07-26 23:42:59.398117+01:00 | transfer | dc361b25-7719-43ef-a6c2-050ec8319b0a | C | 111000.00 | 912500.00 | Transfer
+2026-07-24 09:05:17.385209+01:00 | deposit | fa54d684-1622-449f-966f-85bb18c4a044 | C | 16700.00 | 801500.00 | Deposit
+2026-07-17 03:10:52.325453+01:00 | deposit | 6849a912-416a-47c9-9a75-8c7a73c48179 | C | 94100.00 | 784800.00 | Deposit
+2026-06-25 12:08:15.972942+01:00 | transfer | 48c86d5d-82b0-4b4e-84f4-0466ffd8e804 | C | 86200.00 | 690700.00 | Transfer
+2026-06-16 17:22:57.564786+01:00 | transfer | 5b40dbad-084f-46d2-ab8f-c5fe19cca2ae | C | 119900.00 | 604500.00 | Transfer
+2026-06-07 01:55:16.693555+01:00 | transfer | 625844af-3172-4bd5-a023-aca24333dff9 | D | 3810.00 | 484600.00 | Transfer
+2026-06-05 06:31:49.431995+01:00 | transfer | 839b1f42-c8d4-4fdb-8379-d296d4d7308c | D | 50810.00 | 488410.00 | Transfer
+2026-05-26 03:17:09.022322+01:00 | deposit | 5bc3e77a-26a3-4ce8-b260-84d2493d90cf | C | 149700.00 | 539220.00 | Deposit

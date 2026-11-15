@@ -1,0 +1,3 @@
+-- Q6: Nightly reconciliation: wallets whose stored balance differs from the ledger
+-- 0 row(s) returned, first 15 shown
+wallet_id | balance | ledger_balance

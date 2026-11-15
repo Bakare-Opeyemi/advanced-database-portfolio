@@ -1,0 +1,27 @@
+-- Q1: Customer statement (last 20 ledger lines for one wallet)
+SELECT l.created_at, t.txn_type, t.reference, l.direction, l.amount, l.balance_after, t.narration
+FROM mw.ledger_entries l
+JOIN mw.transactions t ON t.txn_id = l.txn_id
+WHERE l.wallet_id = 36844
+ORDER BY l.created_at DESC, l.entry_id DESC
+LIMIT 20;
+
+Limit  (cost=33830.56..33830.61 rows=20 width=67) (actual time=53.271..53.273 rows=20 loops=1)
+  Buffers: shared hit=5008 read=15321
+  ->  Sort  (cost=33830.56..33830.63 rows=26 width=67) (actual time=53.271..53.272 rows=20 loops=1)
+        Sort Key: l.created_at DESC, l.entry_id DESC
+        Sort Method: quicksort  Memory: 29kB
+        Buffers: shared hit=5008 read=15321
+        ->  Nested Loop  (cost=0.42..33829.95 rows=26 width=67) (actual time=10.531..53.263 rows=31 loops=1)
+              Buffers: shared hit=5008 read=15321
+              ->  Seq Scan on ledger_entries l  (cost=0.00..33610.51 rows=26 width=39) (actual time=10.522..53.172 rows=31 loops=1)
+                    Filter: (wallet_id = 36844)
+                    Rows Removed by Filter: 1072410
+                    Buffers: shared hit=4884 read=15321
+              ->  Index Scan using transactions_pkey on transactions t  (cost=0.42..8.44 rows=1 width=44) (actual time=0.003..0.003 rows=1 loops=31)
+                    Index Cond: (txn_id = l.txn_id)
+                    Buffers: shared hit=124
+Planning:
+  Buffers: shared hit=16
+Planning Time: 0.112 ms
+Execution Time: 53.286 ms

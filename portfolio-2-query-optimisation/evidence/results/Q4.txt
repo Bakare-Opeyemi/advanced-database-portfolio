@@ -1,0 +1,18 @@
+-- Q4: Daily volume report for October 2026 by type and channel (finance)
+-- 248 row(s) returned, first 15 shown
+day | txn_type | channel | txns | value
+2026-10-01 | bill_payment | app | 218 | 2826500.00
+2026-10-01 | bill_payment | ussd | 95 | 1145700.00
+2026-10-01 | deposit | agent | 140 | 7669900.00
+2026-10-01 | deposit | app | 49 | 2276200.00
+2026-10-01 | deposit | ussd | 95 | 5586700.00
+2026-10-01 | transfer | app | 380 | 26453100.00
+2026-10-01 | transfer | ussd | 210 | 14479600.00
+2026-10-01 | withdrawal | agent | 92 | 2053700.00
+2026-10-02 | bill_payment | app | 182 | 2327600.00
+2026-10-02 | bill_payment | ussd | 101 | 1268900.00
+2026-10-02 | deposit | agent | 140 | 7113600.00
+2026-10-02 | deposit | app | 31 | 1919300.00
+2026-10-02 | deposit | ussd | 95 | 6097000.00
+2026-10-02 | transfer | app | 364 | 22795700.00
+2026-10-02 | transfer | ussd | 199 | 13790900.00

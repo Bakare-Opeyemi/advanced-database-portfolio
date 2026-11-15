@@ -79,8 +79,8 @@ All 9 attempts to insert bad data were rejected by the expected constraint. Each
 
 **Third normal form (3NF).** No non-key column depends on another non-key column:
 
-- An early draft stored `customer_name` and `customer_phone` on each transaction. Those depend on the wallet's customer, not on the transaction (a transitive dependency `txn_id → wallet_id → customer_id → phone`), so they were removed. A statement query joins to `customers` instead.
-- An agent's business name and location were moved out of `transactions` into `agents`, and a biller's category out of `transactions` into `billers`, for the same reason.
+- It would be tempting to store `customer_name` and `customer_phone` on each transaction to make statements easy. Those values depend on the wallet's customer, not on the transaction (a transitive dependency `txn_id → wallet_id → customer_id → phone`), so they are kept only in `customers`. A statement query joins to `customers` instead, and a phone number change is made in one place.
+- The agent's business name and location are kept in `agents`, not copied into `transactions`, and a biller's category is kept in `billers`, for the same reason.
 
 **Where I chose not to normalise, and why.**
 

@@ -1,0 +1,5 @@
+-- Q5: AML check: wallets that sent 3 or more transfers, or 300,000 or more in total, on one day in the last 7 days
+-- 2 row(s) returned, first 15 shown
+source_wallet_id | customer | day | transfers | total
+25844 | Sani Okonkwo | 2026-11-07 | 2 | 367100.00
+25188 | Segun Ibrahim | 2026-11-08 | 2 | 353800.00

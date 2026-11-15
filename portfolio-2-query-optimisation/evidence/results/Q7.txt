@@ -1,0 +1,13 @@
+-- Q7: Top billers by value in October 2026
+-- 10 row(s) returned, first 15 shown
+name | category | payments | value
+GOtv | tv | 647 | 8613500.00
+Spectranet | internet | 657 | 8418600.00
+MTN Airtime | airtime | 673 | 8373200.00
+Airtel Airtime | airtime | 654 | 8280800.00
+Airtel Data | data | 643 | 8235000.00
+Lagos Water Corporation | water | 654 | 8207600.00
+MTN Data | data | 648 | 7991300.00
+Port Harcourt Electricity | electricity | 617 | 7948000.00
+Eko Electricity | electricity | 623 | 7940400.00
+Glo Airtime | airtime | 643 | 7815900.00

@@ -1,0 +1,30 @@
+-- Q4: Daily volume report for October 2026 by type and channel (finance)
+SELECT date_trunc('day', created_at)::date AS day, txn_type, channel,
+       count(*) AS txns, sum(amount) AS value
+FROM mw.transactions
+WHERE created_at >= TIMESTAMPTZ '2026-10-01' AND created_at < TIMESTAMPTZ '2026-11-01'
+  AND status = 'successful'
+GROUP BY 1, 2, 3
+ORDER BY 1, 2, 3;
+
+GroupAggregate  (cost=13006.63..14256.84 rows=38468 width=57) (actual time=18.975..24.183 rows=248 loops=1)
+  Group Key: ((date_trunc('day'::text, created_at))::date), txn_type, channel
+  Buffers: shared hit=770
+  ->  Sort  (cost=13006.63..13102.80 rows=38468 width=23) (actual time=18.942..19.800 rows=38458 loops=1)
+        Sort Key: ((date_trunc('day'::text, created_at))::date), txn_type, channel
+        Sort Method: quicksort  Memory: 3950kB
+        Buffers: shared hit=770
+        ->  Bitmap Heap Scan on transactions  (cost=22.07..10077.03 rows=38468 width=23) (actual time=0.106..11.382 rows=38458 loops=1)
+              Recheck Cond: ((created_at >= '2026-10-01 00:00:00+01'::timestamp with time zone) AND (created_at < '2026-11-01 00:00:00+01'::timestamp with time zone))
+              Rows Removed by Index Recheck: 3809
+              Filter: ((status)::text = 'successful'::text)
+              Rows Removed by Filter: 804
+              Heap Blocks: lossy=768
+              Buffers: shared hit=770
+              ->  Bitmap Index Scan on ix_txn_created_brin  (cost=0.00..12.46 rows=101178 width=0) (actual time=0.026..0.026 rows=7680 loops=1)
+                    Index Cond: ((created_at >= '2026-10-01 00:00:00+01'::timestamp with time zone) AND (created_at < '2026-11-01 00:00:00+01'::timestamp with time zone))
+                    Buffers: shared hit=2
+Planning:
+  Buffers: shared hit=10
+Planning Time: 0.048 ms
+Execution Time: 24.204 ms

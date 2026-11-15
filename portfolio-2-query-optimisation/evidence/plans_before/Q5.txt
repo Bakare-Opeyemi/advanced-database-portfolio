@@ -1,0 +1,46 @@
+-- Q5: AML check: wallets that sent 3 or more transfers, or 300,000 or more in total, on one day in the last 7 days
+SELECT t.source_wallet_id, c.first_name || ' ' || c.last_name AS customer,
+       date_trunc('day', t.created_at)::date AS day, count(*) AS transfers, sum(t.amount) AS total
+FROM mw.transactions t
+JOIN mw.wallets w   ON w.wallet_id = t.source_wallet_id
+JOIN mw.customers c ON c.customer_id = w.customer_id
+WHERE t.txn_type = 'transfer' AND t.status = 'successful'
+  AND t.created_at >= TIMESTAMPTZ '2026-11-07' AND t.created_at < TIMESTAMPTZ '2026-11-14'
+GROUP BY 1, 2, 3
+HAVING count(*) >= 3 OR sum(t.amount) >= 300000
+ORDER BY total DESC
+LIMIT 20;
+
+Limit  (cost=21120.41..21120.46 rows=20 width=84) (actual time=48.011..48.012 rows=2 loops=1)
+  Buffers: shared hit=21637
+  ->  Sort  (cost=21120.41..21125.52 rows=2043 width=84) (actual time=48.010..48.011 rows=2 loops=1)
+        Sort Key: (sum(t.amount)) DESC
+        Sort Method: quicksort  Memory: 25kB
+        Buffers: shared hit=21637
+        ->  HashAggregate  (cost=20981.27..21066.05 rows=2043 width=84) (actual time=47.454..48.008 rows=2 loops=1)
+              Group Key: t.source_wallet_id, (((c.first_name)::text || ' '::text) || (c.last_name)::text), (date_trunc('day'::text, t.created_at))::date
+              Filter: ((count(*) >= 3) OR (sum(t.amount) >= '300000'::numeric))
+              Batches: 1  Memory Usage: 2257kB
+              Rows Removed by Filter: 4073
+              Buffers: shared hit=21637
+              ->  Nested Loop  (cost=2379.36..20935.31 rows=3677 width=50) (actual time=36.602..46.493 rows=4100 loops=1)
+                    Buffers: shared hit=21637
+                    ->  Hash Join  (cost=2379.07..19480.72 rows=3677 width=30) (actual time=36.591..41.737 rows=4100 loops=1)
+                          Hash Cond: (t.source_wallet_id = w.wallet_id)
+                          Buffers: shared hit=9337
+                          ->  Seq Scan on transactions t  (cost=0.00..17092.00 rows=3677 width=22) (actual time=31.106..35.689 rows=4100 loops=1)
+                                Filter: ((created_at >= '2026-11-07 00:00:00+01'::timestamp with time zone) AND (created_at < '2026-11-14 00:00:00+01'::timestamp with time zone) AND ((txn_type)::text = 'transfer'::text) AND ((status)::text = 'successful'::text))
+                                Rows Removed by Filter: 445900
+                                Buffers: shared hit=8092
+                          ->  Hash  (cost=1749.03..1749.03 rows=50403 width=16) (actual time=5.473..5.473 rows=50403 loops=1)
+                                Buckets: 65536  Batches: 1  Memory Usage: 2872kB
+                                Buffers: shared hit=1245
+                                ->  Seq Scan on wallets w  (cost=0.00..1749.03 rows=50403 width=16) (actual time=0.162..2.756 rows=50403 loops=1)
+                                      Buffers: shared hit=1245
+                    ->  Index Scan using customers_pkey on customers c  (cost=0.29..0.39 rows=1 width=21) (actual time=0.001..0.001 rows=1 loops=4100)
+                          Index Cond: (customer_id = w.customer_id)
+                          Buffers: shared hit=12300
+Planning:
+  Buffers: shared hit=25
+Planning Time: 0.150 ms
+Execution Time: 48.077 ms

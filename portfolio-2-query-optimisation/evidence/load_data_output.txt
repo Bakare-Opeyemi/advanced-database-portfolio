@@ -1,0 +1,55 @@
+SET
+ setseed 
+---------
+ 
+(1 row)
+
+Reference data: staff, billers, system wallets
+INSERT 0 24
+INSERT 0 15
+INSERT 0 3
+Customers and their wallets
+INSERT 0 50000
+INSERT 0 50000
+INSERT 0 24929
+Agents and their float wallets
+INSERT 0 400
+Generating 400,000 activity transactions
+SELECT 50000
+SELECT 400
+CREATE INDEX
+CREATE INDEX
+ANALYZE
+ANALYZE
+SELECT 400000
+INSERT 0 400000
+UPDATE 8
+Opening deposits: each wallet is funded first, enough to cover all its later spending
+INSERT 0 50000
+Posting the double-entry ledger for every successful transaction
+INSERT 0 1072441
+Running balances and wallet balances
+UPDATE 1072441
+ALTER TABLE
+UPDATE 50403
+ALTER TABLE
+AML flags from two simple rules
+INSERT 0 13587
+ANALYZE
+Row counts
+   table_name   |  count  
+----------------+---------
+ agents         |     400
+ aml_flags      |   13587
+ customers      |   50000
+ transactions   |  450000
+ wallets        |   50403
+ ledger_entries | 1072441
+(6 rows)
+
+Integrity checks (all three should be 0)
+ unbalanced_txns | negative_wallets | negative_running_balances 
+-----------------+------------------+---------------------------
+               0 |                0 |                         0
+(1 row)
+

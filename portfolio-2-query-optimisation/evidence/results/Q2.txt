@@ -1,0 +1,4 @@
+-- Q2: Support agent finds a caller from the last 6 digits of their phone number
+-- 1 row(s) returned, first 15 shown
+customer_id | first_name | last_name | phone | state
+12345 | Nkechi | Umar | +2348000012345 | Ogun

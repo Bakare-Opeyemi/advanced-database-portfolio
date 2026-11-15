@@ -1,0 +1,25 @@
+-- Q6: Nightly reconciliation: wallets whose stored balance differs from the ledger
+SELECT w.wallet_id, w.balance, s.ledger_balance
+FROM mw.wallets w
+JOIN (SELECT wallet_id, sum(CASE direction WHEN 'C' THEN amount ELSE -amount END) AS ledger_balance
+      FROM mw.ledger_entries GROUP BY wallet_id) s USING (wallet_id)
+WHERE w.balance <> s.ledger_balance;
+
+Hash Join  (cost=107373.93..118482.42 rows=25289 width=46) (actual time=425.901..425.902 rows=0 loops=1)
+  Hash Cond: (ledger_entries.wallet_id = w.wallet_id)
+  Join Filter: (w.balance <> (sum(CASE ledger_entries.direction WHEN 'C'::bpchar THEN ledger_entries.amount ELSE (- ledger_entries.amount) END)))
+  Rows Removed by Join Filter: 50403
+  Buffers: shared hit=6737 read=14713, temp read=2910 written=4790
+  ->  HashAggregate  (cost=104994.87..115784.05 rows=25290 width=40) (actual time=281.544..407.268 rows=50403 loops=1)
+        Group Key: ledger_entries.wallet_id
+        Planned Partitions: 4  Batches: 21  Memory Usage: 4281kB  Disk Usage: 19944kB
+        Buffers: shared hit=5492 read=14713, temp read=2910 written=4790
+        ->  Seq Scan on ledger_entries  (cost=0.00..30929.41 rows=1072441 width=16) (actual time=11.721..57.126 rows=1072441 loops=1)
+              Buffers: shared hit=5492 read=14713
+  ->  Hash  (cost=1749.03..1749.03 rows=50403 width=14) (actual time=7.795..7.795 rows=50403 loops=1)
+        Buckets: 65536  Batches: 1  Memory Usage: 2826kB
+        Buffers: shared hit=1245
+        ->  Seq Scan on wallets w  (cost=0.00..1749.03 rows=50403 width=14) (actual time=0.256..3.816 rows=50403 loops=1)
+              Buffers: shared hit=1245
+Planning Time: 0.121 ms
+Execution Time: 428.785 ms
