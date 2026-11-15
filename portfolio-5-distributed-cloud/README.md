@@ -32,11 +32,11 @@ The script creates a new primary, loads the MoniWallet schema and the `transfer_
 | Step | What was tested | Observed result |
 |---|---|---|
 | 1 | Replica connected | `state = streaming`, `sync_state = async` |
-| 2 | Transfer of ₦2,500 on the primary | Visible on the replica in about 50 ms (including `psql` start-up). `replay_lag` = **16.8 ms**. Balances read from the replica: Ada 7,500, Tunde 12,500 |
+| 2 | Transfer of ₦2,500 on the primary | Visible on the replica in about 42 ms (including `psql` start-up). `replay_lag` = **8.1 ms**. Balances read from the replica: Ada 7,500, Tunde 12,500 |
 | 3 | Write on the replica | `ERROR: cannot execute SELECT FOR UPDATE in a read-only transaction` |
 | 4 | 300 transfers, async vs sync commit | **0.27 ms** vs **0.45 ms** per commit (sync is about 1.7x slower, even on one machine) |
 | 5 | Replica stopped while commits are synchronous | `COMMIT` **blocked for 5.0 s** until the client gave up. PostgreSQL warned: "The transaction has already committed locally, but might not have been replicated". Switching back to async, the next commit took 30 ms |
-| 6 | Primary killed (`stop -m immediate`), replica promoted | Promoted in **132 ms**. The first write after failover succeeded, and `v_unbalanced_transactions` = **0** |
+| 6 | Primary killed (`stop -m immediate`), replica promoted | Promoted in **131 ms**. The first write after failover succeeded, and `v_unbalanced_transactions` = **0** |
 
 ![PostgreSQL steps 1 to 3](screenshots/pg_steps_1_3.png)
 
