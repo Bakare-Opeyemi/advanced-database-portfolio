@@ -4,6 +4,7 @@ SET
  
 (1 row)
 
+TRUNCATE TABLE
 Reference data: staff, billers, system wallets
 INSERT 0 24
 INSERT 0 15
@@ -33,7 +34,7 @@ UPDATE 1072441
 ALTER TABLE
 UPDATE 50403
 ALTER TABLE
-AML flags from two simple rules
+AML flags from a simple large-transfer rule
 INSERT 0 13587
 ANALYZE
 Row counts
@@ -42,8 +43,8 @@ Row counts
  agents         |     400
  aml_flags      |   13587
  customers      |   50000
- transactions   |  450000
  wallets        |   50403
+ transactions   |  450000
  ledger_entries | 1072441
 (6 rows)
 

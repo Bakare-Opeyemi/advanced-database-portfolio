@@ -1,52 +1,52 @@
 SET
 === Test 1: phone not in Nigerian format (expected: rejected)
 BEGIN
-psql:constraint_tests.sql:7: ERROR:  new row for relation "customers" violates check constraint "customers_phone_check"
-DETAIL:  Failing row contains (1, 08031234567, Bad, Phone, 1990-01-01, null, null, Lagos, 1, active, 2026-11-15 16:53:44.984774+01).
+psql:portfolio-1-database-design/constraint_tests.sql:7: ERROR:  new row for relation "customers" violates check constraint "customers_phone_check"
+DETAIL:  Failing row contains (1, 08031234567, Bad, Phone, 1990-01-01, null, null, Lagos, 1, active, 2026-11-15 17:35:16.570391+01).
 ROLLBACK
 === Test 2: customer under 18 (expected: rejected)
 BEGIN
-psql:constraint_tests.sql:11: ERROR:  new row for relation "customers" violates check constraint "customers_date_of_birth_check"
-DETAIL:  Failing row contains (2, +2348031234568, Young, User, 2016-11-15, null, null, Oyo, 1, active, 2026-11-15 16:53:44.988143+01).
+psql:portfolio-1-database-design/constraint_tests.sql:11: ERROR:  new row for relation "customers" violates check constraint "customers_date_of_birth_check"
+DETAIL:  Failing row contains (2, +2348031234568, Young, User, 2016-11-15, null, null, Oyo, 1, active, 2026-11-15 17:35:16.571117+01).
 ROLLBACK
 === Test 3: duplicate phone number (expected: rejected)
 BEGIN
 INSERT 0 1
-psql:constraint_tests.sql:15: ERROR:  duplicate key value violates unique constraint "customers_phone_key"
+psql:portfolio-1-database-design/constraint_tests.sql:15: ERROR:  duplicate key value violates unique constraint "customers_phone_key"
 DETAIL:  Key (phone)=(+2348031234567) already exists.
 ROLLBACK
 === Test 4: customer wallet with a negative balance (expected: rejected)
 BEGIN
 INSERT 0 1
-psql:constraint_tests.sql:19: ERROR:  new row for relation "wallets" violates check constraint "wallets_check1"
-DETAIL:  Failing row contains (1, customer, 900001, null, NGN, -500.00, 50000.00, active, 2026-11-15 16:53:44.990789+01).
+psql:portfolio-1-database-design/constraint_tests.sql:19: ERROR:  new row for relation "wallets" violates check constraint "wallets_check1"
+DETAIL:  Failing row contains (1, customer, 900001, null, NGN, -500.00, 50000.00, active, 2026-11-15 17:35:16.573756+01).
 ROLLBACK
 === Test 5: customer wallet with no owner (expected: rejected)
 BEGIN
-psql:constraint_tests.sql:23: ERROR:  new row for relation "wallets" violates check constraint "wallets_check"
-DETAIL:  Failing row contains (2, customer, null, null, NGN, 100.00, 50000.00, active, 2026-11-15 16:53:44.991622+01).
+psql:portfolio-1-database-design/constraint_tests.sql:23: ERROR:  new row for relation "wallets" violates check constraint "wallets_check"
+DETAIL:  Failing row contains (2, customer, null, null, NGN, 100.00, 50000.00, active, 2026-11-15 17:35:16.574112+01).
 ROLLBACK
 === Test 6: transfer from a wallet to itself (expected: rejected)
 BEGIN
 INSERT 0 1
-psql:constraint_tests.sql:27: ERROR:  new row for relation "transactions" violates check constraint "transactions_check"
-DETAIL:  Failing row contains (1, 85e998e5-9ff6-4350-a392-6211b26c281c, transfer, pending, app, 1000.00, 0.00, 900001, 900001, null, null, null, null, 2026-11-15 16:53:44.99187+01, null).
+psql:portfolio-1-database-design/constraint_tests.sql:27: ERROR:  new row for relation "transactions" violates check constraint "transactions_check"
+DETAIL:  Failing row contains (1, 1041aeda-df09-4995-9d45-45a791239f6f, transfer, pending, app, 1000.00, 0.00, 900001, 900001, null, null, null, null, 2026-11-15 17:35:16.57427+01, null).
 ROLLBACK
 === Test 7: transaction with a zero amount (expected: rejected)
 BEGIN
 INSERT 0 1
-psql:constraint_tests.sql:31: ERROR:  new row for relation "transactions" violates check constraint "transactions_amount_check"
-DETAIL:  Failing row contains (2, 20a2188d-56da-4b96-be0d-f3810612db14, deposit, pending, app, 0.00, 0.00, null, 900002, null, null, null, null, 2026-11-15 16:53:44.993303+01, null).
+psql:portfolio-1-database-design/constraint_tests.sql:31: ERROR:  new row for relation "transactions" violates check constraint "transactions_amount_check"
+DETAIL:  Failing row contains (2, 18afba6d-1466-4f55-a7b0-ee85e49f9be4, deposit, pending, app, 0.00, 0.00, null, 900002, null, null, null, null, 2026-11-15 17:35:16.574904+01, null).
 ROLLBACK
 === Test 8: ledger entry pointing to a transaction that does not exist (expected: rejected)
 BEGIN
 INSERT 0 1
-psql:constraint_tests.sql:35: ERROR:  insert or update on table "ledger_entries" violates foreign key constraint "ledger_entries_txn_id_fkey"
+psql:portfolio-1-database-design/constraint_tests.sql:35: ERROR:  insert or update on table "ledger_entries" violates foreign key constraint "ledger_entries_txn_id_fkey"
 DETAIL:  Key (txn_id)=(999999999) is not present in table "transactions".
 ROLLBACK
 === Test 9: unknown KYC document type (expected: rejected)
 BEGIN
 INSERT 0 1
-psql:constraint_tests.sql:39: ERROR:  new row for relation "kyc_documents" violates check constraint "kyc_documents_doc_type_check"
+psql:portfolio-1-database-design/constraint_tests.sql:39: ERROR:  new row for relation "kyc_documents" violates check constraint "kyc_documents_doc_type_check"
 DETAIL:  Failing row contains (1, 900002, school_id, X123, null, null).
 ROLLBACK

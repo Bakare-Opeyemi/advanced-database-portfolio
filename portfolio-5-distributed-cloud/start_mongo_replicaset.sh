@@ -16,7 +16,7 @@ done
 mongosh --quiet --port 27031 --eval '
 try { rs.status(); print("replica set already initiated") }
 catch (e) {
-  rs.initiate({ _id: "mwrs", members: [
+  rs.initiate({ _id: "olwrs", members: [
     { _id: 0, host: "127.0.0.1:27031", priority: 2 },
     { _id: 1, host: "127.0.0.1:27032", priority: 1 },
     { _id: 2, host: "127.0.0.1:27033", priority: 1 } ] });
@@ -24,7 +24,7 @@ catch (e) {
 }'
 # wait for a primary
 for i in $(seq 1 30); do
-  P=$(mongosh --quiet "mongodb://127.0.0.1:27031,127.0.0.1:27032,127.0.0.1:27033/?replicaSet=mwrs" --eval 'db.hello().primary' 2>/dev/null || true)
+  P=$(mongosh --quiet "mongodb://127.0.0.1:27031,127.0.0.1:27032,127.0.0.1:27033/?replicaSet=olwrs" --eval 'db.hello().primary' 2>/dev/null || true)
   if [ -n "$P" ]; then echo "primary is $P"; exit 0; fi
   sleep 1
 done

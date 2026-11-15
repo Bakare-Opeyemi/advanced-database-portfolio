@@ -1,24 +1,24 @@
 -- Q2: Support agent finds a caller from the last 6 digits of their phone number
 SELECT customer_id, first_name, last_name, phone, state
-FROM mw.customers
+FROM olw.customers
 WHERE phone LIKE '%012345'
 ORDER BY customer_id
 LIMIT 25;
 
-Limit  (cost=63.01..63.02 rows=5 width=42) (actual time=0.214..0.214 rows=1 loops=1)
+Limit  (cost=63.01..63.02 rows=5 width=42) (actual time=0.212..0.212 rows=1 loops=1)
   Buffers: shared hit=26
-  ->  Sort  (cost=63.01..63.02 rows=5 width=42) (actual time=0.214..0.214 rows=1 loops=1)
+  ->  Sort  (cost=63.01..63.02 rows=5 width=42) (actual time=0.212..0.212 rows=1 loops=1)
         Sort Key: customer_id
         Sort Method: quicksort  Memory: 25kB
         Buffers: shared hit=26
-        ->  Bitmap Heap Scan on customers  (cost=44.04..62.95 rows=5 width=42) (actual time=0.213..0.213 rows=1 loops=1)
+        ->  Bitmap Heap Scan on customers  (cost=44.04..62.95 rows=5 width=42) (actual time=0.211..0.211 rows=1 loops=1)
               Recheck Cond: ((phone)::text ~~ '%012345'::text)
               Heap Blocks: exact=1
               Buffers: shared hit=26
-              ->  Bitmap Index Scan on ix_customers_phone_trgm  (cost=0.00..44.04 rows=5 width=0) (actual time=0.212..0.212 rows=1 loops=1)
+              ->  Bitmap Index Scan on ix_customers_phone_trgm  (cost=0.00..44.04 rows=5 width=0) (actual time=0.211..0.211 rows=1 loops=1)
                     Index Cond: ((phone)::text ~~ '%012345'::text)
                     Buffers: shared hit=25
 Planning:
   Buffers: shared hit=1
-Planning Time: 0.021 ms
-Execution Time: 0.218 ms
+Planning Time: 0.020 ms
+Execution Time: 0.216 ms

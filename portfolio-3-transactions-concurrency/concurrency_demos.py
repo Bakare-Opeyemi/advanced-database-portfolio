@@ -22,7 +22,7 @@ import psycopg2
 from psycopg2 import errors
 from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED, ISOLATION_LEVEL_REPEATABLE_READ
 
-DSN = "dbname=moniwallet options='-c search_path=mw'"
+DSN = "dbname=opelatwallet options='-c search_path=olw'"
 T0 = time.time()
 
 

@@ -1,4 +1,4 @@
-# MongoDB node configuration for the MoniWallet replica set "mwrs".
+# MongoDB node configuration for the OpeLat Wallet replica set "olwrs".
 # start_mongo_replicaset.sh fills in PORT and LAB for each of the 3 nodes.
 net:
   port: PORT
@@ -13,4 +13,4 @@ processManagement:
   fork: true
   pidFilePath: LAB/mongo-PORT.pid
 replication:
-  replSetName: mwrs
+  replSetName: olwrs

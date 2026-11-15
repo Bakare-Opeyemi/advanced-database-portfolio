@@ -18,10 +18,10 @@ Transaction examples showing commit, rollback, isolation, a concurrency issue or
 ## How to run
 
 ```bash
-psql moniwallet -f portfolio-3-transactions-concurrency/transfer_function.sql     # function + 5 demo wallets (resets them)
-psql moniwallet -f portfolio-3-transactions-concurrency/demo_commit_rollback.sql
+psql opelatwallet -f portfolio-3-transactions-concurrency/transfer_function.sql     # function + 5 demo wallets (resets them)
+psql opelatwallet -f portfolio-3-transactions-concurrency/demo_commit_rollback.sql
 python3 portfolio-3-transactions-concurrency/concurrency_demos.py                 # needs psycopg2
-psql moniwallet -f portfolio-3-transactions-concurrency/transfer_function.sql     # reset the demo wallets afterwards
+psql opelatwallet -f portfolio-3-transactions-concurrency/transfer_function.sql     # reset the demo wallets afterwards
 ```
 
 Demos A to E change the demo wallets' balances directly (that is the point of showing what goes wrong), so the last command removes them again. After the reset, the Portfolio 2 reconciliation query (Q6) returns 0 rows.
@@ -85,10 +85,10 @@ Naive code that locks "my wallet first" deadlocks when Ada pays Tunde while Tund
 
 | Check | Result |
 |---|---|
-| Transfers committed | 3,703 |
-| Correctly rejected (insufficient funds) | 297 |
+| Transfers committed | 3,752 |
+| Correctly rejected (insufficient funds) | 248 |
 | Unexpected errors (including deadlocks) | 0 |
-| Total money before and after | 16,988,690.00 = 16,988,690.00 (**conserved**) |
+| Total money before and after | 18,207,320.00 = 18,207,320.00 (**conserved**) |
 | Negative customer balances | 0 |
 | Unbalanced ledger transactions | 0 |
 

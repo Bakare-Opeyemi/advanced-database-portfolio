@@ -16,7 +16,7 @@
 ==============================================================================
 [  0.00s]     Same two 7,000 cash-outs, but each session locks the row before reading it.
 [  0.00s] S1  SELECT balance ... FOR UPDATE
-[  0.00s] S1  got the lock after 0.00s, reads balance = 10000.00
+[  0.01s] S1  got the lock after 0.00s, reads balance = 10000.00
 [  0.01s] S1  writes balance = 3000.00
 [  0.21s] S2  SELECT balance ... FOR UPDATE
 [  1.01s] S1  COMMIT (releases the lock)
@@ -54,22 +54,22 @@
 === Demo E: DEADLOCK from opposite lock order, then the fix
 ==============================================================================
 --- naive code: S1 transfers Ada->Tunde, S2 transfers Tunde->Ada, each locks its source first
-[  0.01s] S1  locked wallet 50435
-[  0.01s] S2  locked wallet 50436
-[  0.01s] S2  now wants wallet 50435 ...
-[  0.01s] S1  now wants wallet 50436 ...
+[  0.01s] S2  locked wallet 50405
+[  0.01s] S1  locked wallet 50404
+[  0.01s] S1  now wants wallet 50405 ...
+[  0.01s] S2  now wants wallet 50404 ...
 [  1.08s] S2  ERROR 40P01: deadlock detected, PostgreSQL killed this transaction
 [  1.08s] S1  COMMIT
 --- fixed code: both call transfer_funds(), which always locks the lower wallet_id first
-[  1.62s] S1  transfer 50435->50436 COMMIT
-[  2.13s] S2  transfer 50436->50435 COMMIT
+[  1.62s] S2  transfer 50405->50404 COMMIT
+[  2.13s] S1  transfer 50404->50405 COMMIT
 [  2.13s]     RESULT: no deadlock. The second session simply waited for the first.
 
 ==============================================================================
 === Demo F: STRESS TEST, 16 threads x 250 random transfers through transfer_funds
 ==============================================================================
-[  0.01s]     40 wallets + fee wallet hold 16,988,690.00 in total before the test
-[  1.92s]     3703 transfers committed, 297 correctly rejected (297 insufficient funds, 0 daily limit), 0 other errors
-[  1.92s]     4000 attempts in 1.1s (3694 attempts per second)
-[  1.92s]     total money before = 16,988,690.00   after = 16,988,690.00   CONSERVED
-[  1.92s]     negative customer balances = 0, unbalanced ledger transactions = 0
+[  0.02s]     40 wallets + fee wallet hold 18,207,320.00 in total before the test
+[  1.97s]     3752 transfers committed, 248 correctly rejected (248 insufficient funds, 0 daily limit), 0 other errors
+[  1.97s]     4000 attempts in 1.1s (3743 attempts per second)
+[  1.97s]     total money before = 18,207,320.00   after = 18,207,320.00   CONSERVED
+[  1.97s]     negative customer balances = 0, unbalanced ledger transactions = 0

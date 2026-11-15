@@ -1,7 +1,7 @@
 // Portfolio 4: how the choice of metaField changes time-series storage.
 // app_events uses meta = {customerId, channel}: 50,000 different values, so almost every bucket holds 1 event.
 // Here the same events are copied into a collection whose meta is only {channel} (2 values).
-db = db.getSiblingDB("moniwallet");
+db = db.getSiblingDB("opelatwallet");
 db.app_events_by_channel.drop();
 db.createCollection("app_events_by_channel", { timeseries: { timeField: "ts", metaField: "channel", granularity: "minutes" } });
 db.app_events.aggregate([

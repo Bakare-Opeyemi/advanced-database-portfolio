@@ -1,25 +1,25 @@
 -- Q6: Nightly reconciliation: wallets whose stored balance differs from the ledger
 SELECT w.wallet_id, w.balance, s.ledger_balance
-FROM mw.wallets w
+FROM olw.wallets w
 JOIN (SELECT wallet_id, sum(CASE direction WHEN 'C' THEN amount ELSE -amount END) AS ledger_balance
-      FROM mw.ledger_entries GROUP BY wallet_id) s USING (wallet_id)
+      FROM olw.ledger_entries GROUP BY wallet_id) s USING (wallet_id)
 WHERE w.balance <> s.ledger_balance;
 
-Hash Join  (cost=107373.93..118493.19 rows=25718 width=46) (actual time=404.133..404.134 rows=0 loops=1)
+Hash Join  (cost=107373.93..118493.85 rows=25744 width=46) (actual time=413.636..413.637 rows=0 loops=1)
   Hash Cond: (ledger_entries.wallet_id = w.wallet_id)
   Join Filter: (w.balance <> (sum(CASE ledger_entries.direction WHEN 'C'::bpchar THEN ledger_entries.amount ELSE (- ledger_entries.amount) END)))
   Rows Removed by Join Filter: 50403
-  Buffers: shared hit=6385 read=15065, temp read=2910 written=4790
-  ->  HashAggregate  (cost=104994.87..115789.41 rows=25719 width=40) (actual time=268.752..387.699 rows=50403 loops=1)
+  Buffers: shared hit=4398 read=17052, temp read=2910 written=4790
+  ->  HashAggregate  (cost=104994.87..115789.74 rows=25745 width=40) (actual time=283.340..396.704 rows=50403 loops=1)
         Group Key: ledger_entries.wallet_id
         Planned Partitions: 4  Batches: 21  Memory Usage: 4281kB  Disk Usage: 19944kB
-        Buffers: shared hit=5140 read=15065, temp read=2910 written=4790
-        ->  Seq Scan on ledger_entries  (cost=0.00..30929.41 rows=1072441 width=16) (actual time=10.373..53.733 rows=1072441 loops=1)
-              Buffers: shared hit=5140 read=15065
-  ->  Hash  (cost=1749.03..1749.03 rows=50403 width=14) (actual time=6.983..6.983 rows=50403 loops=1)
+        Buffers: shared hit=3153 read=17052, temp read=2910 written=4790
+        ->  Seq Scan on ledger_entries  (cost=0.00..30929.41 rows=1072441 width=16) (actual time=11.320..62.240 rows=1072441 loops=1)
+              Buffers: shared hit=3153 read=17052
+  ->  Hash  (cost=1749.03..1749.03 rows=50403 width=14) (actual time=7.681..7.681 rows=50403 loops=1)
         Buckets: 65536  Batches: 1  Memory Usage: 2826kB
         Buffers: shared hit=1245
-        ->  Seq Scan on wallets w  (cost=0.00..1749.03 rows=50403 width=14) (actual time=0.210..3.466 rows=50403 loops=1)
+        ->  Seq Scan on wallets w  (cost=0.00..1749.03 rows=50403 width=14) (actual time=0.288..4.135 rows=50403 loops=1)
               Buffers: shared hit=1245
-Planning Time: 0.075 ms
-Execution Time: 407.187 ms
+Planning Time: 0.069 ms
+Execution Time: 416.511 ms

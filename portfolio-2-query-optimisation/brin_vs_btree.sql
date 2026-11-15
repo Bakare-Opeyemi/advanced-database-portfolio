@@ -1,5 +1,5 @@
 -- Portfolio 2: compare a BRIN index with a normal B-tree on the same column (transactions.created_at)
-SET search_path TO mw;
+SET search_path TO olw;
 SET max_parallel_workers_per_gather = 0;
 \timing on
 CREATE INDEX ix_tmp_created_btree ON transactions (created_at);

@@ -24,7 +24,7 @@ transfer 6 committed on primary; visible on replica after about 42 ms (includes 
 
  application_name |    write_lag    |    flush_lag    |   replay_lag    
 ------------------+-----------------+-----------------+-----------------
- replica1         | 00:00:00.007676 | 00:00:00.007677 | 00:00:00.008074
+ replica1         | 00:00:00.009856 | 00:00:00.009857 | 00:00:00.010207
 (1 row)
 
 
@@ -55,12 +55,12 @@ DETAIL:  The transaction has already committed locally, but might not have been 
 (1 row)
 
 --- choose availability instead: go back to asynchronous commit
-async commit with the replica down returned in 30 ms
+async commit with the replica down returned in 28 ms
 
 === STEP 6: failover. The primary fails and the replica is promoted
 replica restarted and caught up: 2 of 2 transfers made while it was down
 primary on 5442 killed (immediate stop, like a crash)
-replica promoted in 131 ms; in recovery now? f
+replica promoted in 129 ms; in recovery now? f
  new_txn 
 ---------
      633

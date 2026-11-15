@@ -1,12 +1,12 @@
 -- =====================================================================
--- MoniWallet relational schema (PostgreSQL 14)
+-- OpeLat Wallet relational schema (PostgreSQL 14)
 -- Portfolio 1: Database Design and Modelling
--- Run: psql moniwallet -f portfolio-1-database-design/schema.sql
+-- Run: psql opelatwallet -f portfolio-1-database-design/schema.sql
 -- =====================================================================
 
-DROP SCHEMA IF EXISTS mw CASCADE;
-CREATE SCHEMA mw;
-SET search_path TO mw;
+DROP SCHEMA IF EXISTS olw CASCADE;
+CREATE SCHEMA olw;
+SET search_path TO olw;
 
 -- ---------- Staff who review KYC, AML flags and reconciliations ----------
 CREATE TABLE staff (

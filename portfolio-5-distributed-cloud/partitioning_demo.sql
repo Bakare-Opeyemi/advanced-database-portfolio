@@ -1,7 +1,7 @@
 -- Portfolio 5, part C: horizontal fragmentation of transactions by month (declarative partitioning).
 -- Same idea as sharding, inside one server: each month is its own table, and queries only touch the months they need.
--- Run: psql moniwallet -f portfolio-5-distributed-cloud/partitioning_demo.sql
-SET search_path TO mw;
+-- Run: psql opelatwallet -f portfolio-5-distributed-cloud/partitioning_demo.sql
+SET search_path TO olw;
 SET max_parallel_workers_per_gather = 0;
 DROP TABLE IF EXISTS transactions_by_month CASCADE;
 

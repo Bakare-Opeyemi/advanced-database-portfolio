@@ -6,7 +6,7 @@ A NoSQL model based on the same case study, a document, key-value, column or gra
 
 ## Checklist
 
-- [x] NoSQL type and the MoniWallet data it holds: MongoDB 7.0, with four models (document, key-value with TTL, time series, graph)
+- [x] NoSQL type and the OpeLat Wallet data it holds: MongoDB 7.0, with four models (document, key-value with TTL, time series, graph)
 - [x] Data model with a sample document: below and [`evidence/sample_document.json`](evidence/sample_document.json)
 - [x] Scripts that create the collections, load data and run 8 queries: [`create_collections.js`](create_collections.js), [`setup_mongo.sh`](setup_mongo.sh), [`queries.js`](queries.js)
 - [x] Indexes on the most searched fields, with `explain("executionStats")` before and after
@@ -17,9 +17,9 @@ A NoSQL model based on the same case study, a document, key-value, column or gra
 
 ```bash
 ./portfolio-5-distributed-cloud/start_mongo_replicaset.sh        # 3-node replica set on ports 27031-27033
-psql moniwallet -f portfolio-4-nosql/export_from_postgres.sql     # same customers and transfers as PostgreSQL
+psql opelatwallet -f portfolio-4-nosql/export_from_postgres.sql     # same customers and transfers as PostgreSQL
 ./portfolio-4-nosql/setup_mongo.sh                                # collections, import, generated activity
-mongosh "mongodb://127.0.0.1:27031,127.0.0.1:27032,127.0.0.1:27033/moniwallet?replicaSet=mwrs" portfolio-4-nosql/queries.js
+mongosh "mongodb://127.0.0.1:27031,127.0.0.1:27032,127.0.0.1:27033/opelatwallet?replicaSet=olwrs" portfolio-4-nosql/queries.js
 ```
 
 ## My work
@@ -28,7 +28,7 @@ mongosh "mongodb://127.0.0.1:27031,127.0.0.1:27032,127.0.0.1:27033/moniwallet?re
 
 Money stays in PostgreSQL. Balances and transfers need multi-row ACID transactions, foreign keys and the double-entry ledger (Portfolios 1 and 3). MongoDB holds the data around the money: things that are read as a whole, change shape over time, or arrive in very large volumes.
 
-| Collection | NoSQL model | MoniWallet data | Why not a relational table |
+| Collection | NoSQL model | OpeLat Wallet data | Why not a relational table |
 |---|---|---|---|
 | `customer_profiles` | **Document** | Profile with embedded devices and notification settings | The login screen needs the profile *and* its devices in one read. In SQL that is a join across 2 to 3 tables on every login. Device fields differ by OS and change often. |
 | `login_sessions` | **Key-value** (lookup by `_id` token) with a **TTL index** | "Remember me" sessions | Read by key only, never joined. The database deletes expired sessions itself, with no cleanup job. |
@@ -68,7 +68,7 @@ All four collections use the **same customer and wallet IDs as PostgreSQL**. [`e
 | N5 | Follow the money from one wallet for up to 3 hops | Graph traversal with `$graphLookup` | Hop 1: 5 transfers, ₦445,700. Hop 2: 2 transfers, ₦164,600 |
 | N6 | Reject a profile with a bad phone number | `$jsonSchema` validation | `Document failed validation (code 121)` |
 | N7 | Trust a device after an OTP check | Atomic update of one array element (`devices.$`) | `matched=1 modified=1` |
-| N8 | Expire a session automatically | TTL index | Session gone after 14 s (the TTL monitor runs every 60 s) |
+| N8 | Expire a session automatically | TTL index | Session gone after 12 s (the TTL monitor runs every 60 s) |
 
 ![N1 and N2: index evidence](screenshots/n1_n2_index.png)
 
@@ -82,8 +82,8 @@ All four collections use the **same customer and wallet IDs as PostgreSQL**. [`e
 
 | metaField | Buckets | Storage |
 |---|---|---|
-| `{customerId, channel}` | 144,408 | 11,272 KB |
-| `channel` only | **4,247** | **1,116 KB** (10x smaller) |
+| `{customerId, channel}` | 144,408 | 11,940 KB |
+| `channel` only | **6,370** | **2,580 KB** (4.6x smaller) |
 
 ![Time-series buckets](screenshots/timeseries_buckets.png)
 

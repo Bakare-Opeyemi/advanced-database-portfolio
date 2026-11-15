@@ -1,5 +1,5 @@
-// Portfolio 4: MoniWallet NoSQL queries with evidence (run with mongosh against the replica set)
-db = db.getSiblingDB("moniwallet");
+// Portfolio 4: OpeLat Wallet NoSQL queries with evidence (run with mongosh against the replica set)
+db = db.getSiblingDB("opelatwallet");
 const line = (t) => print("\n=== " + t);
 const show = (o) => print(EJSON.stringify(o, null, 0));
 function stats(expl) {

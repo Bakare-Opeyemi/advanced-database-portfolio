@@ -1,6 +1,6 @@
-// Portfolio 4: generate login sessions and app telemetry for the MoniWallet customers.
+// Portfolio 4: generate login sessions and app telemetry for the OpeLat Wallet customers.
 // Uses a seeded random generator so every run produces the same data.
-db = db.getSiblingDB("moniwallet");
+db = db.getSiblingDB("opelatwallet");
 
 // mulberry32: a small, good-quality seeded generator (a plain LCG repeated patterns)
 let seed = 8103;

@@ -2,31 +2,31 @@ SET
 === STEP 1: starting balances
  customer | wallet_id | balance  
 ----------+-----------+----------
- Ada      |     50435 | 10000.00
- Tunde    |     50436 | 10000.00
- Musa     |     50437 | 10000.00
+ Ada      |     50404 | 10000.00
+ Tunde    |     50405 | 10000.00
+ Musa     |     50406 | 10000.00
 (3 rows)
 
 === STEP 2: Ada sends 3,000 to Tunde inside BEGIN ... COMMIT
 BEGIN
  txn_id 
 --------
- 450597
+ 450006
 (1 row)
 
 --- inside the transaction, before COMMIT, Ada sees her new balance:
  customer | wallet_id | balance  
 ----------+-----------+----------
- Ada      |     50435 |  7000.00
- Tunde    |     50436 | 13000.00
+ Ada      |     50404 |  7000.00
+ Tunde    |     50405 | 13000.00
 (2 rows)
 
 COMMIT
 --- after COMMIT (the change is now permanent and visible to everyone):
  customer | wallet_id | balance  
 ----------+-----------+----------
- Ada      |     50435 |  7000.00
- Tunde    |     50436 | 13000.00
+ Ada      |     50404 |  7000.00
+ Tunde    |     50405 | 13000.00
 (2 rows)
 
 === STEP 3: Ada tries to send 50,000 (she has 7,000): the function raises an error
@@ -39,8 +39,8 @@ ROLLBACK
 --- after ROLLBACK: balances unchanged, and no transfer row was written
  customer | wallet_id | balance  
 ----------+-----------+----------
- Ada      |     50435 |  7000.00
- Tunde    |     50436 | 13000.00
+ Ada      |     50404 |  7000.00
+ Tunde    |     50405 | 13000.00
 (2 rows)
 
  failed_rows_written 
@@ -52,28 +52,28 @@ ROLLBACK
 BEGIN
  txn_id 
 --------
- 450598
+ 450007
 (1 row)
 
  customer | wallet_id | balance  
 ----------+-----------+----------
- Tunde    |     50436 | 12000.00
- Musa     |     50437 | 11000.00
+ Tunde    |     50405 | 12000.00
+ Musa     |     50406 | 11000.00
 (2 rows)
 
 ROLLBACK
 --- after ROLLBACK, the 1,000 transfer is gone:
  customer | wallet_id | balance  
 ----------+-----------+----------
- Tunde    |     50436 | 13000.00
- Musa     |     50437 | 10000.00
+ Tunde    |     50405 | 13000.00
+ Musa     |     50406 | 10000.00
 (2 rows)
 
 === STEP 5: SAVEPOINT. A batch of two payments where only the second fails
 BEGIN
  item1_txn 
 -----------
-    450599
+    450008
 (1 row)
 
 SAVEPOINT
@@ -84,8 +84,8 @@ ROLLBACK
 COMMIT
  customer | wallet_id | balance  
 ----------+-----------+----------
- Tunde    |     50436 | 11000.00
- Musa     |     50437 | 12000.00
+ Tunde    |     50405 | 11000.00
+ Musa     |     50406 | 12000.00
 (2 rows)
 
   narration   | amount  |   status   

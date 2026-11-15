@@ -17,10 +17,10 @@ SQL queries, query results, execution plans, indexing or optimisation evidence, 
 ## How to run
 
 ```bash
-psql moniwallet -f portfolio-1-database-design/schema.sql
-psql moniwallet -f portfolio-2-query-optimisation/load_data.sql          # about 40 seconds
+psql opelatwallet -f portfolio-1-database-design/schema.sql
+psql opelatwallet -f portfolio-2-query-optimisation/load_data.sql          # about 40 seconds
 python3 portfolio-2-query-optimisation/run_benchmark.py                 # needs psycopg2
-psql moniwallet -f portfolio-2-query-optimisation/brin_vs_btree.sql
+psql opelatwallet -f portfolio-2-query-optimisation/brin_vs_btree.sql
 ```
 
 ## My work
@@ -37,14 +37,14 @@ Each query was run 7 times with `EXPLAIN (ANALYZE, BUFFERS)` and the **median** 
 
 | Query | Purpose | Before (ms) | After (ms) | Speed-up | What changed in the plan |
 |---|---|---|---|---|---|
-| Q1 | Customer statement, last 20 lines | 53.1 | 0.035 | ~1,500x | Seq Scan of 1.07M ledger rows became an Index Scan on `(wallet_id, created_at DESC)` that stops after 20 rows |
-| Q2 | Find a caller from the last 6 phone digits | 3.63 | 0.22 | ~16x | Seq Scan became a trigram GIN Bitmap Index Scan |
-| Q3 | Transactions stuck in `pending` | 36.6 | 0.004 | ~9,000x | Seq Scan became an Index Scan on a 16 kB partial index |
-| Q4 | Daily volume report, one month | 52.6 | 24.4 | 2.2x | Seq Scan became a BRIN Bitmap Heap Scan that reads only October's blocks |
-| Q5 | AML check, last 7 days | 47.9 | 14.4 | 3.3x | Same BRIN index narrows the scan to one week |
-| Q6 | Reconciliation, balance vs ledger | 410.7 | 428.8 | none | Still two Seq Scans (expected, see below) |
-| Q7 | Top billers, one month | 41.4 | 2.7 | 15x | Seq Scan became an **Index Only Scan** on a partial covering index |
-| Q8 | Look up one transaction by reference | 0.004 | 0.005 | none | Already an Index Scan on the UNIQUE constraint |
+| Q1 | Customer statement, last 20 lines | 62.2 | 0.033 | ~1,900x | Seq Scan of 1.07M ledger rows became an Index Scan on `(wallet_id, created_at DESC)` that stops after 20 rows |
+| Q2 | Find a caller from the last 6 phone digits | 3.86 | 0.22 | ~18x | Seq Scan became a trigram GIN Bitmap Index Scan |
+| Q3 | Transactions stuck in `pending` | 42.4 | 0.004 | ~10,600x | Seq Scan became an Index Scan on a 16 kB partial index |
+| Q4 | Daily volume report, one month | 60.2 | 24.3 | 2.5x | Seq Scan became a BRIN Bitmap Heap Scan that reads only October's blocks |
+| Q5 | AML check, last 7 days | 54.5 | 15.2 | 3.6x | Same BRIN index narrows the scan to one week |
+| Q6 | Reconciliation, balance vs ledger | 417.0 | 452.9 | none | Still two Seq Scans (expected, see below) |
+| Q7 | Top billers, one month | 45.2 | 2.9 | 15.5x | Seq Scan became an **Index Only Scan** on a partial covering index |
+| Q8 | Look up one transaction by reference | 0.003 | 0.004 | none | Already an Index Scan on the UNIQUE constraint |
 
 Full numbers: [`evidence/benchmark_results.md`](evidence/benchmark_results.md).
 

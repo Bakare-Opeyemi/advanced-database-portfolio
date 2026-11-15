@@ -1,17 +1,17 @@
 -- Q3: Stuck transactions still pending after 15 minutes (operations alert)
 SELECT txn_id, reference, txn_type, amount, created_at
-FROM mw.transactions
+FROM olw.transactions
 WHERE status = 'pending'
   AND created_at < TIMESTAMPTZ '2026-11-14 00:00' - INTERVAL '15 minutes'
 ORDER BY created_at;
 
-Sort  (cost=15967.29..15967.33 rows=15 width=47) (actual time=36.602..36.602 rows=5 loops=1)
+Sort  (cost=15967.29..15967.33 rows=15 width=47) (actual time=42.961..42.961 rows=5 loops=1)
   Sort Key: created_at
   Sort Method: quicksort  Memory: 25kB
-  Buffers: shared hit=8092
-  ->  Seq Scan on transactions  (cost=0.00..15967.00 rows=15 width=47) (actual time=32.864..36.600 rows=5 loops=1)
+  Buffers: shared hit=6650 read=1442
+  ->  Seq Scan on transactions  (cost=0.00..15967.00 rows=15 width=47) (actual time=38.202..42.958 rows=5 loops=1)
         Filter: (((status)::text = 'pending'::text) AND (created_at < ('2026-11-14 00:00:00+01'::timestamp with time zone - '00:15:00'::interval)))
         Rows Removed by Filter: 449995
-        Buffers: shared hit=8092
-Planning Time: 0.031 ms
-Execution Time: 36.607 ms
+        Buffers: shared hit=6650 read=1442
+Planning Time: 0.033 ms
+Execution Time: 42.967 ms

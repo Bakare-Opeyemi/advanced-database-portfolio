@@ -1,4 +1,4 @@
-"""Draw the MoniWallet ER diagram (crow's foot style) as a PNG.
+"""Draw the OpeLat Wallet ER diagram (crow's foot style) as a PNG.
 
 Usage: python3 tools/draw_er_diagram.py portfolio-1-database-design/er-diagram.png
 """
@@ -74,7 +74,7 @@ for p, ps, c, cs, label in RELS:
     ax.text(x1 + (x2 - x1) * 0.4, y1 + (y2 - y1) * 0.4, label, fontsize=7.6, color=GREY, ha="center", va="center",
             bbox=dict(fc="white", ec="none", pad=0.6), zorder=5)
 
-ax.text(7.8, 16.2, "MoniWallet ER diagram (PostgreSQL schema mw)", ha="center", fontsize=13,
+ax.text(7.8, 16.2, "OpeLat Wallet ER diagram (PostgreSQL schema olw)", ha="center", fontsize=13,
         fontweight="bold", color=NAVY)
 ax.text(7.8, -1.15, "Arrows point from the 'one' side to the 'many' side.  PK = primary key, FK = foreign key, "
         "UQ = unique.  transactions.reversal_of is a self-reference (a reversal points to the original).",

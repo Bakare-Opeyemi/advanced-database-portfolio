@@ -1,6 +1,6 @@
-// Portfolio 4: create the MoniWallet MongoDB collections (run with mongosh against the replica set)
-// mongosh "mongodb://127.0.0.1:27031,127.0.0.1:27032,127.0.0.1:27033/moniwallet?replicaSet=mwrs" create_collections.js
-db = db.getSiblingDB("moniwallet");
+// Portfolio 4: create the OpeLat Wallet MongoDB collections (run with mongosh against the replica set)
+// mongosh "mongodb://127.0.0.1:27031,127.0.0.1:27032,127.0.0.1:27033/opelatwallet?replicaSet=olwrs" create_collections.js
+db = db.getSiblingDB("opelatwallet");
 db.dropDatabase();
 
 // 1. customer_profiles: one DOCUMENT per customer. Devices and notification settings are

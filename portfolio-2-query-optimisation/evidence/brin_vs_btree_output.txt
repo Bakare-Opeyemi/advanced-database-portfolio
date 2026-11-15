@@ -2,34 +2,34 @@ SET
 SET
 Timing is on.
 CREATE INDEX
-Time: 202.379 ms
+Time: 229.162 ms
  index_type |  size   
 ------------+---------
  BRIN       | 24 kB
  B-tree     | 9896 kB
 (2 rows)
 
-Time: 0.751 ms
+Time: 0.413 ms
 --- Q4 with the B-tree available (planner free to choose)
                                                                                  QUERY PLAN                                                                                 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- GroupAggregate (actual time=19.308..24.369 rows=248 loops=1)
+ GroupAggregate (actual time=20.865..26.270 rows=248 loops=1)
    Group Key: ((date_trunc('day'::text, created_at))::date), txn_type, channel
-   ->  Sort (actual time=19.269..20.091 rows=38458 loops=1)
+   ->  Sort (actual time=20.826..21.693 rows=38458 loops=1)
          Sort Key: ((date_trunc('day'::text, created_at))::date), txn_type, channel
          Sort Method: quicksort  Memory: 3950kB
-         ->  Bitmap Heap Scan on transactions (actual time=0.123..11.772 rows=38458 loops=1)
+         ->  Bitmap Heap Scan on transactions (actual time=0.148..12.797 rows=38458 loops=1)
                Recheck Cond: ((created_at >= '2026-10-01 00:00:00+01'::timestamp with time zone) AND (created_at < '2026-11-01 00:00:00+01'::timestamp with time zone))
                Rows Removed by Index Recheck: 3809
                Filter: ((status)::text = 'successful'::text)
                Rows Removed by Filter: 804
                Heap Blocks: lossy=768
-               ->  Bitmap Index Scan on ix_txn_created_brin (actual time=0.036..0.036 rows=7680 loops=1)
+               ->  Bitmap Index Scan on ix_txn_created_brin (actual time=0.044..0.044 rows=7680 loops=1)
                      Index Cond: ((created_at >= '2026-10-01 00:00:00+01'::timestamp with time zone) AND (created_at < '2026-11-01 00:00:00+01'::timestamp with time zone))
- Planning Time: 0.531 ms
- Execution Time: 24.406 ms
+ Planning Time: 0.830 ms
+ Execution Time: 26.316 ms
 (15 rows)
 
-Time: 25.923 ms
+Time: 27.819 ms
 DROP INDEX
-Time: 0.929 ms
+Time: 1.103 ms

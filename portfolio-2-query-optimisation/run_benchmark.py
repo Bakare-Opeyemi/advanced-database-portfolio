@@ -17,8 +17,8 @@ import psycopg2
 HERE = os.path.dirname(os.path.abspath(__file__))
 EV = os.path.join(HERE, "evidence")
 RUNS = 7
-DROP = """DROP INDEX IF EXISTS mw.ix_ledger_wallet_time, mw.ix_customers_phone_trgm, mw.ix_txn_pending,
-          mw.ix_txn_created_brin, mw.ix_txn_bill_time;"""
+DROP = """DROP INDEX IF EXISTS olw.ix_ledger_wallet_time, olw.ix_customers_phone_trgm, olw.ix_txn_pending,
+          olw.ix_txn_created_brin, olw.ix_txn_bill_time;"""
 
 
 def load_queries():
@@ -40,14 +40,14 @@ def main():
     os.makedirs(os.path.join(EV, "plans_before"), exist_ok=True)
     os.makedirs(os.path.join(EV, "plans_after"), exist_ok=True)
     os.makedirs(os.path.join(EV, "results"), exist_ok=True)
-    conn = psycopg2.connect(dbname="moniwallet")
+    conn = psycopg2.connect(dbname="opelatwallet")
     conn.autocommit = True
     cur = conn.cursor()
     cur.execute("SET max_parallel_workers_per_gather = 0")   # one core, so timings compare fairly
     queries = load_queries()
 
     cur.execute(DROP)
-    cur.execute("ANALYZE mw.transactions; ANALYZE mw.ledger_entries; ANALYZE mw.customers;")
+    cur.execute("ANALYZE olw.transactions; ANALYZE olw.ledger_entries; ANALYZE olw.customers;")
     before = {}
     for qid, title, sql in queries:
         before[qid] = measure(cur, sql)
@@ -80,10 +80,10 @@ def main():
         return "<br>".join(found) or "-"
 
     cur.execute("""SELECT indexrelname, pg_size_pretty(pg_relation_size(indexrelid))
-                   FROM pg_stat_user_indexes WHERE schemaname = 'mw' AND indexrelname LIKE 'ix_%'
+                   FROM pg_stat_user_indexes WHERE schemaname = 'olw' AND indexrelname LIKE 'ix_%'
                    ORDER BY indexrelname""")
     sizes = cur.fetchall()
-    cur.execute("SELECT pg_size_pretty(pg_relation_size('mw.transactions'))")
+    cur.execute("SELECT pg_size_pretty(pg_relation_size('olw.transactions'))")
     table_size = cur.fetchone()[0]
 
     with open(os.path.join(EV, "benchmark_results.md"), "w") as f:

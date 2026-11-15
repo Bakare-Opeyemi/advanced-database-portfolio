@@ -1,9 +1,9 @@
 -- =====================================================================
--- MoniWallet: safe wallet-to-wallet transfer (Portfolio 3)
+-- OpeLat Wallet: safe wallet-to-wallet transfer (Portfolio 3)
 -- One call = one atomic unit of work. If any check fails, an exception is raised
 -- and NOTHING is written (no transaction row, no ledger lines, no balance change).
 -- =====================================================================
-SET search_path TO mw;
+SET search_path TO olw;
 
 CREATE OR REPLACE FUNCTION transfer_funds(
     p_from      BIGINT,
@@ -13,7 +13,7 @@ CREATE OR REPLACE FUNCTION transfer_funds(
     p_narration VARCHAR DEFAULT 'Transfer'
 ) RETURNS BIGINT
 LANGUAGE plpgsql
-SET search_path = mw          -- pin the schema: works from any session, and cannot be hijacked by a
+SET search_path = olw          -- pin the schema: works from any session, and cannot be hijacked by a
                               -- table of the same name in another schema
 AS $$
 DECLARE

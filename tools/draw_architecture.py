@@ -1,4 +1,4 @@
-"""Draw the proposed MoniWallet distributed deployment (Portfolio 5)."""
+"""Draw the proposed OpeLat Wallet distributed deployment (Portfolio 5)."""
 import sys
 import matplotlib
 matplotlib.use("Agg")
@@ -38,13 +38,13 @@ box(0.9, 1.4, 4.2, 2.2, "MongoDB\nprimary\n(profiles, sessions, events)", TEAL, 
 box(8.0, 1.4, 4.2, 2.2, "MongoDB\nsecondary", TEAL, fs=8.5)
 box(16.2, 1.4, 4.2, 2.2, "MongoDB\nsecondary\n(priority 0.5)", TEAL, fs=8.5)
 arrow(5.1, 2.5, 8.0, 2.5, "oplog", TEAL); arrow(12.2, 2.0, 16.2, 2.0, "oplog", TEAL, "--")
-ax.text(7.6, 4.3, "API servers also read and write profiles, sessions and telemetry here.\nReplica set mwrs: w:\"majority\" writes (2 of 3 nodes), automatic election if the primary fails",
+ax.text(7.6, 4.3, "API servers also read and write profiles, sessions and telemetry here.\nReplica set olwrs: w:\"majority\" writes (2 of 3 nodes), automatic election if the primary fails",
         ha="center", fontsize=8.3, color=TEAL)
 
 arrow(4.0, 12.0, 4.0, 9.1, "all money writes", NAVY)
 arrow(19.6, 12.0, 19.6, 9.1, "read-only reports", ORANGE, "--")
 ax.text(12, -0.35, "Both regions are in Nigeria, so customer personal data stays in the country (Nigeria Data Protection Act 2023).", ha="center", fontsize=8.5, color=GREY)
 ax.set_ylim(-0.8, 14.2)
-ax.set_title("Proposed MoniWallet deployment: replication for availability, regions for disaster recovery",
+ax.set_title("Proposed OpeLat Wallet deployment: replication for availability, regions for disaster recovery",
              fontsize=11, fontweight="bold", color=NAVY)
 plt.savefig(sys.argv[1], dpi=170, bbox_inches="tight"); print("saved", sys.argv[1])

@@ -1,31 +1,31 @@
 
 === STEP 1: replica set members
-127.0.0.1:27031  PRIMARY     health=1  lastApplied=2026-11-15T16:19:09.000Z
-127.0.0.1:27032  SECONDARY   health=1  lastApplied=2026-11-15T16:19:09.000Z
-127.0.0.1:27033  SECONDARY   health=1  lastApplied=2026-11-15T16:19:09.000Z
+127.0.0.1:27031  PRIMARY     health=1  lastApplied=2026-11-15T16:37:53.000Z
+127.0.0.1:27032  SECONDARY   health=1  lastApplied=2026-11-15T16:37:53.000Z
+127.0.0.1:27033  SECONDARY   health=1  lastApplied=2026-11-15T16:37:53.000Z
 
 === STEP 2: write with w:majority on the primary, read it back from a SECONDARY
 inserted with w:majority (acknowledged by at least 2 of 3 nodes): true
 read on 27032 (secondary): {"n":0,"note":"replication check"}
 source: 127.0.0.1:27032
-  replLag: '0 secs (0 hrs) behind the primary '
+  replLag: '6 secs (0 hrs) behind the primary '
 source: 127.0.0.1:27033
-  replLag: '0 secs (0 hrs) behind the primary '
+  replLag: '6 secs (0 hrs) behind the primary '
 
 === STEP 3: automatic failover. A client writes every 100 ms; after 5 s the primary is shut down
 current primary: 27031
-shutting down primary 27031 at 17:19:25
+shutting down primary 27031 at 17:38:06
 new primary 127.0.0.1:27032, election reason: stepUpRequestSkipDryRun
-elected 0.5 s after the shutdown command; majority writes available again after 0.6 s
+elected 0.6 s after the shutdown command; majority writes available again after 0.7 s
 writer: 208 writes succeeded, 0 failed; longest pause between two successful writes = 1.0 s
 127.0.0.1:27031  (not reachable/healthy)  health=0  lastApplied=1970-01-01T00:00:00.000Z
-127.0.0.1:27032  PRIMARY     health=1  lastApplied=2026-11-15T16:19:46.000Z
-127.0.0.1:27033  SECONDARY   health=1  lastApplied=2026-11-15T16:19:46.000Z
+127.0.0.1:27032  PRIMARY     health=1  lastApplied=2026-11-15T16:38:26.000Z
+127.0.0.1:27033  SECONDARY   health=1  lastApplied=2026-11-15T16:38:26.000Z
 
 === STEP 4: the old primary comes back and rejoins as a secondary
-127.0.0.1:27031  SECONDARY   health=1  lastApplied=2026-11-15T16:19:46.000Z
-127.0.0.1:27032  PRIMARY     health=1  lastApplied=2026-11-15T16:19:46.000Z
-127.0.0.1:27033  SECONDARY   health=1  lastApplied=2026-11-15T16:19:46.000Z
+127.0.0.1:27031  SECONDARY   health=1  lastApplied=2026-11-15T16:38:26.000Z
+127.0.0.1:27032  PRIMARY     health=1  lastApplied=2026-11-15T16:38:26.000Z
+127.0.0.1:27033  SECONDARY   health=1  lastApplied=2026-11-15T16:38:26.000Z
 
 === STEP 5: CAP. Two of three nodes down: no majority, so no primary
 stopped 27032 and 27031; only 27033 is running
@@ -36,7 +36,7 @@ WRITE REFUSED: NotWritablePrimary: not primary
 READ OK from the surviving secondary: 209 test docs, 50000 customer profiles (data may be slightly stale)
 
 === STEP 6: restore all three nodes
-127.0.0.1:27031  PRIMARY     health=1  lastApplied=2026-11-15T16:20:57.000Z
-127.0.0.1:27032  SECONDARY   health=1  lastApplied=2026-11-15T16:20:46.000Z
-127.0.0.1:27033  SECONDARY   health=1  lastApplied=2026-11-15T16:20:46.000Z
+127.0.0.1:27031  PRIMARY     health=1  lastApplied=2026-11-15T16:39:43.000Z
+127.0.0.1:27032  SECONDARY   health=1  lastApplied=2026-11-15T16:39:43.000Z
+127.0.0.1:27033  SECONDARY   health=1  lastApplied=2026-11-15T16:39:43.000Z
 primary is now 27031: node 27031 has priority 2, so once it has caught up it takes the primary role back

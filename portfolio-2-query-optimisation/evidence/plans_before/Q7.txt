@@ -1,36 +1,36 @@
 -- Q7: Top billers by value in October 2026
 SELECT b.name, b.category, count(*) AS payments, sum(t.amount) AS value
-FROM mw.transactions t
-JOIN mw.billers b ON b.biller_id = t.biller_id
+FROM olw.transactions t
+JOIN olw.billers b ON b.biller_id = t.biller_id
 WHERE t.txn_type = 'bill_payment' AND t.status = 'successful'
   AND t.created_at >= TIMESTAMPTZ '2026-10-01' AND t.created_at < TIMESTAMPTZ '2026-11-01'
 GROUP BY b.name, b.category
 ORDER BY value DESC
 LIMIT 10;
 
-Limit  (cost=17195.26..17195.29 rows=10 width=60) (actual time=41.296..41.297 rows=10 loops=1)
-  Buffers: shared hit=8093
-  ->  Sort  (cost=17195.26..17195.30 rows=15 width=60) (actual time=41.295..41.296 rows=10 loops=1)
+Limit  (cost=17196.62..17196.65 rows=10 width=60) (actual time=42.540..42.542 rows=10 loops=1)
+  Buffers: shared hit=7419 read=674
+  ->  Sort  (cost=17196.62..17196.66 rows=15 width=60) (actual time=42.540..42.541 rows=10 loops=1)
         Sort Key: (sum(t.amount)) DESC
         Sort Method: quicksort  Memory: 26kB
-        Buffers: shared hit=8093
-        ->  HashAggregate  (cost=17194.78..17194.97 rows=15 width=60) (actual time=41.288..41.290 rows=15 loops=1)
+        Buffers: shared hit=7419 read=674
+        ->  HashAggregate  (cost=17196.14..17196.33 rows=15 width=60) (actual time=42.532..42.534 rows=15 loops=1)
               Group Key: b.name, b.category
               Batches: 1  Memory Usage: 24kB
-              Buffers: shared hit=8093
-              ->  Hash Join  (cost=1.34..17115.39 rows=7939 width=26) (actual time=29.264..39.812 rows=8929 loops=1)
+              Buffers: shared hit=7419 read=674
+              ->  Hash Join  (cost=1.34..17115.68 rows=8046 width=26) (actual time=30.308..41.056 rows=8929 loops=1)
                     Hash Cond: (t.biller_id = b.biller_id)
-                    Buffers: shared hit=8093
-                    ->  Seq Scan on transactions t  (cost=0.00..17092.00 rows=7939 width=10) (actual time=29.248..38.941 rows=8929 loops=1)
+                    Buffers: shared hit=7419 read=674
+                    ->  Seq Scan on transactions t  (cost=0.00..17092.00 rows=8046 width=10) (actual time=30.288..40.178 rows=8929 loops=1)
                           Filter: ((created_at >= '2026-10-01 00:00:00+01'::timestamp with time zone) AND (created_at < '2026-11-01 00:00:00+01'::timestamp with time zone) AND ((txn_type)::text = 'bill_payment'::text) AND ((status)::text = 'successful'::text))
                           Rows Removed by Filter: 441071
-                          Buffers: shared hit=8092
-                    ->  Hash  (cost=1.15..1.15 rows=15 width=24) (actual time=0.010..0.011 rows=15 loops=1)
+                          Buffers: shared hit=7418 read=674
+                    ->  Hash  (cost=1.15..1.15 rows=15 width=24) (actual time=0.015..0.015 rows=15 loops=1)
                           Buckets: 1024  Batches: 1  Memory Usage: 9kB
                           Buffers: shared hit=1
-                          ->  Seq Scan on billers b  (cost=0.00..1.15 rows=15 width=24) (actual time=0.005..0.005 rows=15 loops=1)
+                          ->  Seq Scan on billers b  (cost=0.00..1.15 rows=15 width=24) (actual time=0.005..0.006 rows=15 loops=1)
                                 Buffers: shared hit=1
 Planning:
   Buffers: shared hit=7
-Planning Time: 0.074 ms
-Execution Time: 41.312 ms
+Planning Time: 0.087 ms
+Execution Time: 42.557 ms

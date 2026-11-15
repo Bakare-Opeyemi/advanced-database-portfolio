@@ -1,9 +1,9 @@
 -- =====================================================================
 -- Portfolio 3, part 1: COMMIT, ROLLBACK and SAVEPOINT
 -- Run after transfer_function.sql:
---   psql moniwallet -f portfolio-3-transactions-concurrency/demo_commit_rollback.sql
+--   psql opelatwallet -f portfolio-3-transactions-concurrency/demo_commit_rollback.sql
 -- =====================================================================
-SET search_path TO mw;
+SET search_path TO olw;
 \set ON_ERROR_STOP off
 SELECT wallet_id AS ada   FROM demo_wallets WHERE customer = 'Ada'   \gset
 SELECT wallet_id AS tunde FROM demo_wallets WHERE customer = 'Tunde' \gset

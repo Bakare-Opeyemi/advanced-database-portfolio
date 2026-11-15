@@ -3,7 +3,7 @@
 # Needs start_mongo_replicaset.sh (3 nodes on 27031-27033).
 set -u
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"; LAB="$ROOT/.lab"
-URI="mongodb://127.0.0.1:27031,127.0.0.1:27032,127.0.0.1:27033/moniwallet?replicaSet=mwrs"
+URI="mongodb://127.0.0.1:27031,127.0.0.1:27032,127.0.0.1:27033/opelatwallet?replicaSet=olwrs"
 step() { echo; echo "=== $*"; }
 members() { mongosh --quiet "$URI" --eval 'rs.status().members.forEach(m => print(`${m.name}  ${m.stateStr.padEnd(10)}  health=${m.health}  lastApplied=${m.optimeDate ? m.optimeDate.toISOString() : "-"}`))'; }
 primary() { for p in 27031 27032 27033; do r=$(mongosh --quiet --port $p --eval 'db.hello().isWritablePrimary' 2>/dev/null); [ "$r" = "true" ] && { echo $p; return; }; done; echo none; }
@@ -18,7 +18,7 @@ mongosh --quiet "$URI" --eval '
 db.failover_test.drop();
 const r = db.failover_test.insertOne({ n: 0, note: "replication check" }, { writeConcern: { w: "majority" } });
 print("inserted with w:majority (acknowledged by at least 2 of 3 nodes): " + r.acknowledged);'
-mongosh --quiet --port 27032 --eval 'db.getMongo().setReadPref("secondary"); print("read on 27032 (secondary): " + EJSON.stringify(db.getSiblingDB("moniwallet").failover_test.findOne({n: 0}, {_id: 0})))'
+mongosh --quiet --port 27032 --eval 'db.getMongo().setReadPref("secondary"); print("read on 27032 (secondary): " + EJSON.stringify(db.getSiblingDB("opelatwallet").failover_test.findOne({n: 0}, {_id: 0})))'
 mongosh --quiet "$URI" --eval 'rs.printSecondaryReplicationInfo()' | grep -E "source|behind"
 
 step "STEP 3: automatic failover. A client writes every 100 ms; after 5 s the primary is shut down"
@@ -64,12 +64,12 @@ sleep 12
 mongosh --quiet --port $LAST --eval 'print("node " + db.hello().me + " state: " + rs.status().members.find(m => m.self).stateStr)'
 echo "--- try to WRITE on the surviving node:"
 mongosh --quiet --port $LAST --eval '
-try { db.getSiblingDB("moniwallet").failover_test.insertOne({ n: -1, note: "write with no majority" }); print("write succeeded (unexpected)") }
+try { db.getSiblingDB("opelatwallet").failover_test.insertOne({ n: -1, note: "write with no majority" }); print("write succeeded (unexpected)") }
 catch (e) { print("WRITE REFUSED: " + (e.codeName || e.name) + ": " + e.message.split("\n")[0].slice(0, 110)) }'
 echo "--- try to READ with readPreference=secondaryPreferred:"
 mongosh --quiet --port $LAST --eval '
 db.getMongo().setReadPref("secondaryPreferred");
-const d = db.getSiblingDB("moniwallet");
+const d = db.getSiblingDB("opelatwallet");
 print("READ OK from the surviving secondary: " + d.failover_test.countDocuments() + " test docs, "
       + d.customer_profiles.countDocuments() + " customer profiles (data may be slightly stale)")'
 

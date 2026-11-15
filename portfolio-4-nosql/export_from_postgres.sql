@@ -1,7 +1,7 @@
--- Portfolio 4: export MoniWallet data from PostgreSQL as JSON lines for MongoDB.
+-- Portfolio 4: export OpeLat Wallet data from PostgreSQL as JSON lines for MongoDB.
 -- Output goes to ../.lab/ (not committed). Run from the repository root:
---   psql moniwallet -f portfolio-4-nosql/export_from_postgres.sql
-SET search_path TO mw;
+--   psql opelatwallet -f portfolio-4-nosql/export_from_postgres.sql
+SET search_path TO olw;
 SELECT setseed(0.4);
 
 -- 1. Customer profiles: one document per customer with an embedded array of devices

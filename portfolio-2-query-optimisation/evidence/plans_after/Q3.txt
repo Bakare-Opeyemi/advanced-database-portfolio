@@ -1,11 +1,11 @@
 -- Q3: Stuck transactions still pending after 15 minutes (operations alert)
 SELECT txn_id, reference, txn_type, amount, created_at
-FROM mw.transactions
+FROM olw.transactions
 WHERE status = 'pending'
   AND created_at < TIMESTAMPTZ '2026-11-14 00:00' - INTERVAL '15 minutes'
 ORDER BY created_at;
 
-Index Scan using ix_txn_pending on transactions  (cost=0.13..8.14 rows=1 width=47) (actual time=0.001..0.002 rows=5 loops=1)
+Index Scan using ix_txn_pending on transactions  (cost=0.13..7.51 rows=1 width=47) (actual time=0.001..0.002 rows=5 loops=1)
   Index Cond: (created_at < ('2026-11-14 00:00:00+01'::timestamp with time zone - '00:15:00'::interval))
   Buffers: shared hit=3
 Planning:

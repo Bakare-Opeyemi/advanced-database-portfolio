@@ -1,22 +1,22 @@
             List of relations
  Schema |      Name      | Type  | Owner 
 --------+----------------+-------+-------
- mw     | agents         | table | pc
- mw     | aml_flags      | table | pc
- mw     | audit_log      | table | pc
- mw     | billers        | table | pc
- mw     | customers      | table | pc
- mw     | kyc_documents  | table | pc
- mw     | ledger_entries | table | pc
- mw     | staff          | table | pc
- mw     | transactions   | table | pc
- mw     | wallets        | table | pc
+ olw    | agents         | table | pc
+ olw    | aml_flags      | table | pc
+ olw    | audit_log      | table | pc
+ olw    | billers        | table | pc
+ olw    | customers      | table | pc
+ olw    | kyc_documents  | table | pc
+ olw    | ledger_entries | table | pc
+ olw    | staff          | table | pc
+ olw    | transactions   | table | pc
+ olw    | wallets        | table | pc
 (10 rows)
 
-                                              Table "mw.wallets"
-   Column    |           Type           | Collation | Nullable |                    Default                    
--------------+--------------------------+-----------+----------+-----------------------------------------------
- wallet_id   | bigint                   |           | not null | nextval('mw.wallets_wallet_id_seq'::regclass)
+                                              Table "olw.wallets"
+   Column    |           Type           | Collation | Nullable |                    Default                     
+-------------+--------------------------+-----------+----------+------------------------------------------------
+ wallet_id   | bigint                   |           | not null | nextval('olw.wallets_wallet_id_seq'::regclass)
  wallet_type | character varying(10)    |           | not null | 
  customer_id | bigint                   |           |          | 
  label       | character varying(60)    |           |          | 
@@ -35,19 +35,19 @@ Check constraints:
     "wallets_status_check" CHECK (status::text = ANY (ARRAY['active'::character varying, 'frozen'::character varying, 'closed'::character varying]::text[]))
     "wallets_wallet_type_check" CHECK (wallet_type::text = ANY (ARRAY['customer'::character varying, 'agent'::character varying, 'system'::character varying]::text[]))
 Foreign-key constraints:
-    "wallets_customer_id_fkey" FOREIGN KEY (customer_id) REFERENCES mw.customers(customer_id) ON DELETE RESTRICT
+    "wallets_customer_id_fkey" FOREIGN KEY (customer_id) REFERENCES olw.customers(customer_id) ON DELETE RESTRICT
 Referenced by:
-    TABLE "mw.agents" CONSTRAINT "agents_wallet_id_fkey" FOREIGN KEY (wallet_id) REFERENCES mw.wallets(wallet_id)
-    TABLE "mw.ledger_entries" CONSTRAINT "ledger_entries_wallet_id_fkey" FOREIGN KEY (wallet_id) REFERENCES mw.wallets(wallet_id)
-    TABLE "mw.transactions" CONSTRAINT "transactions_dest_wallet_id_fkey" FOREIGN KEY (dest_wallet_id) REFERENCES mw.wallets(wallet_id)
-    TABLE "mw.transactions" CONSTRAINT "transactions_source_wallet_id_fkey" FOREIGN KEY (source_wallet_id) REFERENCES mw.wallets(wallet_id)
+    TABLE "olw.agents" CONSTRAINT "agents_wallet_id_fkey" FOREIGN KEY (wallet_id) REFERENCES olw.wallets(wallet_id)
+    TABLE "olw.ledger_entries" CONSTRAINT "ledger_entries_wallet_id_fkey" FOREIGN KEY (wallet_id) REFERENCES olw.wallets(wallet_id)
+    TABLE "olw.transactions" CONSTRAINT "transactions_dest_wallet_id_fkey" FOREIGN KEY (dest_wallet_id) REFERENCES olw.wallets(wallet_id)
+    TABLE "olw.transactions" CONSTRAINT "transactions_source_wallet_id_fkey" FOREIGN KEY (source_wallet_id) REFERENCES olw.wallets(wallet_id)
 Triggers:
-    trg_wallet_status AFTER UPDATE OF status ON mw.wallets FOR EACH ROW EXECUTE FUNCTION mw.log_wallet_status()
+    trg_wallet_status AFTER UPDATE OF status ON olw.wallets FOR EACH ROW EXECUTE FUNCTION olw.log_wallet_status()
 
-                                               Table "mw.transactions"
-      Column      |           Type           | Collation | Nullable |                     Default                     
-------------------+--------------------------+-----------+----------+-------------------------------------------------
- txn_id           | bigint                   |           | not null | nextval('mw.transactions_txn_id_seq'::regclass)
+                                               Table "olw.transactions"
+      Column      |           Type           | Collation | Nullable |                     Default                      
+------------------+--------------------------+-----------+----------+--------------------------------------------------
+ txn_id           | bigint                   |           | not null | nextval('olw.transactions_txn_id_seq'::regclass)
  reference        | uuid                     |           | not null | gen_random_uuid()
  txn_type         | character varying(12)    |           | not null | 
  status           | character varying(10)    |           | not null | 'pending'::character varying
@@ -78,13 +78,13 @@ Check constraints:
     "transactions_status_check" CHECK (status::text = ANY (ARRAY['pending'::character varying, 'successful'::character varying, 'failed'::character varying, 'reversed'::character varying]::text[]))
     "transactions_txn_type_check" CHECK (txn_type::text = ANY (ARRAY['deposit'::character varying, 'withdrawal'::character varying, 'transfer'::character varying, 'bill_payment'::character varying, 'reversal'::character varying]::text[]))
 Foreign-key constraints:
-    "transactions_agent_id_fkey" FOREIGN KEY (agent_id) REFERENCES mw.agents(agent_id)
-    "transactions_biller_id_fkey" FOREIGN KEY (biller_id) REFERENCES mw.billers(biller_id)
-    "transactions_dest_wallet_id_fkey" FOREIGN KEY (dest_wallet_id) REFERENCES mw.wallets(wallet_id)
-    "transactions_reversal_of_fkey" FOREIGN KEY (reversal_of) REFERENCES mw.transactions(txn_id)
-    "transactions_source_wallet_id_fkey" FOREIGN KEY (source_wallet_id) REFERENCES mw.wallets(wallet_id)
+    "transactions_agent_id_fkey" FOREIGN KEY (agent_id) REFERENCES olw.agents(agent_id)
+    "transactions_biller_id_fkey" FOREIGN KEY (biller_id) REFERENCES olw.billers(biller_id)
+    "transactions_dest_wallet_id_fkey" FOREIGN KEY (dest_wallet_id) REFERENCES olw.wallets(wallet_id)
+    "transactions_reversal_of_fkey" FOREIGN KEY (reversal_of) REFERENCES olw.transactions(txn_id)
+    "transactions_source_wallet_id_fkey" FOREIGN KEY (source_wallet_id) REFERENCES olw.wallets(wallet_id)
 Referenced by:
-    TABLE "mw.aml_flags" CONSTRAINT "aml_flags_txn_id_fkey" FOREIGN KEY (txn_id) REFERENCES mw.transactions(txn_id)
-    TABLE "mw.ledger_entries" CONSTRAINT "ledger_entries_txn_id_fkey" FOREIGN KEY (txn_id) REFERENCES mw.transactions(txn_id)
-    TABLE "mw.transactions" CONSTRAINT "transactions_reversal_of_fkey" FOREIGN KEY (reversal_of) REFERENCES mw.transactions(txn_id)
+    TABLE "olw.aml_flags" CONSTRAINT "aml_flags_txn_id_fkey" FOREIGN KEY (txn_id) REFERENCES olw.transactions(txn_id)
+    TABLE "olw.ledger_entries" CONSTRAINT "ledger_entries_txn_id_fkey" FOREIGN KEY (txn_id) REFERENCES olw.transactions(txn_id)
+    TABLE "olw.transactions" CONSTRAINT "transactions_reversal_of_fkey" FOREIGN KEY (reversal_of) REFERENCES olw.transactions(txn_id)
 

@@ -1,15 +1,20 @@
 -- =====================================================================
--- MoniWallet: load realistic made-up data (Portfolio 2)
+-- OpeLat Wallet: load realistic made-up data (Portfolio 2)
 -- 50,000 customers, 400 agents, ~450,000 transactions, ~950,000 ledger entries.
 -- All names, phone numbers and BVNs are generated. No real person's data is used.
--- Run after schema.sql:  psql moniwallet -f portfolio-2-query-optimisation/load_data.sql
+-- Run after schema.sql:  psql opelatwallet -f portfolio-2-query-optimisation/load_data.sql
 -- =====================================================================
-SET search_path TO mw;
+SET search_path TO olw;
 SELECT setseed(0.8103);                       -- same data every run
+
+-- start from empty tables with ID counters back at 1, so IDs are the same on every run
+-- (rejected inserts, such as the Portfolio 1 constraint tests, still use up sequence numbers)
+TRUNCATE staff, customers, kyc_documents, wallets, agents, billers, transactions,
+         ledger_entries, aml_flags, audit_log RESTART IDENTITY CASCADE;
 
 \echo 'Reference data: staff, billers, system wallets'
 INSERT INTO staff (full_name, email, role)
-SELECT 'Staff Member ' || g, 'staff' || g || '@moniwallet.example',
+SELECT 'Staff Member ' || g, 'staff' || g || '@opelatwallet.example',
        (ARRAY['support','compliance','finance','auditor'])[1 + g % 4]
 FROM generate_series(1, 24) g;
 
@@ -21,7 +26,7 @@ INSERT INTO billers (name, category) VALUES
  ('Spectranet','internet'), ('Smile','internet');
 
 INSERT INTO wallets (wallet_type, label, created_at) VALUES
- ('system', 'Bank settlement',   '2025-01-01'),   -- wallet 1: money entering / leaving MoniWallet
+ ('system', 'Bank settlement',   '2025-01-01'),   -- wallet 1: money entering / leaving OpeLat Wallet
  ('system', 'Fee income',        '2025-01-01'),   -- wallet 2: transfer fees
  ('system', 'Biller settlement', '2025-01-01');   -- wallet 3: owed to billers
 
@@ -63,7 +68,7 @@ WITH w AS (
   RETURNING wallet_id
 )
 INSERT INTO agents (business_name, phone, state, lga, wallet_id)
-SELECT 'MoniPoint Agent ' || row_number() OVER (),
+SELECT 'OpeLat Agent ' || row_number() OVER (),
        '+23470' || lpad((90000000 + row_number() OVER ())::text, 8, '0'),
        (ARRAY['Lagos','Abuja FCT','Rivers','Oyo','Kano','Kaduna','Ogun','Enugu','Delta','Edo'])[1 + (wallet_id % 10)::int],
        'LGA ' || (1 + wallet_id % 20), wallet_id

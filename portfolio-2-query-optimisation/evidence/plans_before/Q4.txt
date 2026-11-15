@@ -1,24 +1,24 @@
 -- Q4: Daily volume report for October 2026 by type and channel (finance)
 SELECT date_trunc('day', created_at)::date AS day, txn_type, channel,
        count(*) AS txns, sum(amount) AS value
-FROM mw.transactions
+FROM olw.transactions
 WHERE created_at >= TIMESTAMPTZ '2026-10-01' AND created_at < TIMESTAMPTZ '2026-11-01'
   AND status = 'successful'
 GROUP BY 1, 2, 3
 ORDER BY 1, 2, 3;
 
-GroupAggregate  (cost=19108.56..20365.99 rows=38690 width=57) (actual time=47.944..52.625 rows=248 loops=1)
+GroupAggregate  (cost=19163.06..20440.51 rows=39306 width=57) (actual time=54.923..60.137 rows=248 loops=1)
   Group Key: ((date_trunc('day'::text, created_at))::date), txn_type, channel
-  Buffers: shared hit=8092
-  ->  Sort  (cost=19108.56..19205.29 rows=38690 width=23) (actual time=47.912..48.692 rows=38458 loops=1)
+  Buffers: shared hit=6906 read=1186
+  ->  Sort  (cost=19163.06..19261.33 rows=39306 width=23) (actual time=54.889..55.733 rows=38458 loops=1)
         Sort Key: ((date_trunc('day'::text, created_at))::date), txn_type, channel
         Sort Method: quicksort  Memory: 3950kB
-        Buffers: shared hit=8092
-        ->  Seq Scan on transactions  (cost=0.00..16160.45 rows=38690 width=23) (actual time=26.615..41.063 rows=38458 loops=1)
+        Buffers: shared hit=6906 read=1186
+        ->  Seq Scan on transactions  (cost=0.00..16163.53 rows=39306 width=23) (actual time=30.704..47.280 rows=38458 loops=1)
               Filter: ((created_at >= '2026-10-01 00:00:00+01'::timestamp with time zone) AND (created_at < '2026-11-01 00:00:00+01'::timestamp with time zone) AND ((status)::text = 'successful'::text))
               Rows Removed by Filter: 411542
-              Buffers: shared hit=8092
+              Buffers: shared hit=6906 read=1186
 Planning:
   Buffers: shared hit=9
-Planning Time: 0.048 ms
-Execution Time: 52.649 ms
+Planning Time: 0.051 ms
+Execution Time: 60.162 ms

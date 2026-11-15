@@ -25,24 +25,24 @@
 </style>
 </head>
 <body>
-<h1>Advanced Database Systems Portfolio: MoniWallet</h1>
+<h1>Advanced Database Systems Portfolio: OpeLat Wallet</h1>
 <p class="sub">MIT 8103 Advanced Database Systems: First Semester Continuous Assessment (Individual Practical Database Portfolio)</p>
 <table class="id">
   <tr><td>Full name</td><td>Abdullateef Opeyemi Bakare</td></tr>
   <tr><td>Programme</td><td>MSc Information Technology</td><td>GitHub</td><td><a href="https://github.com/Bakare-Opeyemi/advanced-database-portfolio">github.com/Bakare-Opeyemi/advanced-database-portfolio</a> (private)</td></tr>
 </table>
 
-<h2>1. Selected case study: MoniWallet</h2>
-<p><b>MoniWallet</b> is a simulated Nigerian mobile money operator (all data is generated). Customers hold a wallet linked to their phone number. They fund it from a bank or an agent, transfer money, pay bills and withdraw cash at agents. <b>Users:</b> customers (app and USSD), agents, support staff, compliance officers (KYC and anti-money-laundering), finance staff and auditors. <b>Major data:</b> customers and KYC documents, wallets and balances, transactions, a double-entry ledger, agents, billers, AML flags, devices, sessions and app telemetry. <b>Key operations:</b> register and verify a customer, fund a wallet, transfer, pay a bill, reverse a failed transaction, produce a statement, flag suspicious activity and reconcile balances. The same case study and the same IDs are used in all five activities.</p>
+<h2>1. Selected case study: OpeLat Wallet</h2>
+<p><b>OpeLat Wallet</b> is a simulated Nigerian mobile money operator (all data is generated). Customers hold a wallet linked to their phone number. They fund it from a bank or an agent, transfer money, pay bills and withdraw cash at agents. <b>Users:</b> customers (app and USSD), agents, support staff, compliance officers (KYC and anti-money-laundering), finance staff and auditors. <b>Major data:</b> customers and KYC documents, wallets and balances, transactions, a double-entry ledger, agents, billers, AML flags, devices, sessions and app telemetry. <b>Key operations:</b> register and verify a customer, fund a wallet, transfer, pay a bill, reverse a failed transaction, produce a statement, flag suspicious activity and reconcile balances. The same case study and the same IDs are used in all five activities.</p>
 
 <h2>2. Portfolio activities</h2>
 <table>
   <tr><th style="width:17%">Activity</th><th>What was built</th><th style="width:34%">Key evidence</th></tr>
   <tr><td><b>1. Design and modelling</b></td><td>10-table PostgreSQL schema with a double-entry ledger, surrogate keys plus protected natural keys, CHECK rules per transaction type, an audit trigger and an integrity view. Normalised to 3NF, with two documented, controlled redundancies (stored balance, balance-after).</td><td>ER diagram; all 9 bad-data tests rejected by the intended constraint.</td></tr>
-  <tr><td><b>2. Query optimisation</b></td><td>50,000 customers, 450,000 transactions, 1,072,441 ledger lines. 8 business queries measured with <code>EXPLAIN (ANALYZE, BUFFERS)</code>, median of 7 runs, before and after targeted indexes: composite, trigram GIN, partial, BRIN and covering.</td><td>Statement 53.1 to 0.035 ms; stuck-payments alert 36.6 to 0.004 ms; biller report 41.4 to 2.7 ms (Index Only Scan). BRIN is 24 kB against 9.9 MB for a B-tree.</td></tr>
+  <tr><td><b>2. Query optimisation</b></td><td>50,000 customers, 450,000 transactions, 1,072,441 ledger lines. 8 business queries measured with <code>EXPLAIN (ANALYZE, BUFFERS)</code>, median of 7 runs, before and after targeted indexes: composite, trigram GIN, partial, BRIN and covering.</td><td>Statement 62.2 to 0.033 ms; stuck-payments alert 42.4 to 0.004 ms; biller report 45.2 to 2.9 ms (Index Only Scan). BRIN is 24 kB against 9.9 MB for a B-tree.</td></tr>
   <tr><td><b>3. Transactions and concurrency</b></td><td><code>transfer_funds()</code> locks both wallets in id order, checks after locking, and writes the transaction, ledger and balances atomically. Demos: commit, rollback, savepoint, lost update, <code>FOR UPDATE</code>, REPEATABLE READ with retry, non-repeatable read, deadlock.</td><td>Lost update reproduced (14,000 paid, balance 3,000) and fixed; deadlock <code>40P01</code> removed by lock ordering; 16 threads, 4,000 attempts: money conserved, 0 negative balances.</td></tr>
-  <tr><td><b>4. NoSQL models</b></td><td>MongoDB 7: profiles as <b>documents</b> with embedded devices and <code>$jsonSchema</code> validation; sessions as <b>key-value</b> with a TTL index; telemetry as a <b>time-series</b> collection; transfers as a <b>graph</b> traversed with <code>$graphLookup</code>.</td><td>Login lookup 50,000 docs to 1 doc examined; fraud query finds all 6 planted takeover attempts; measured time-series design fix: 10x less storage.</td></tr>
-  <tr><td><b>5. Distributed and cloud</b></td><td>PostgreSQL primary and hot standby (streaming, slot, sync and async), a 3-node MongoDB replica set, monthly partitioning, CAP discussion, a sharding plan and a two-region deployment in Nigeria.</td><td>Replay lag 8 ms; sync commit blocks 5 s with the replica down; promotion 131 ms; Mongo election 0.5 s with 0 of 208 writes lost; no-majority writes refused.</td></tr>
+  <tr><td><b>4. NoSQL models</b></td><td>MongoDB 7: profiles as <b>documents</b> with embedded devices and <code>$jsonSchema</code> validation; sessions as <b>key-value</b> with a TTL index; telemetry as a <b>time-series</b> collection; transfers as a <b>graph</b> traversed with <code>$graphLookup</code>.</td><td>Login lookup 50,000 docs to 1 doc examined; fraud query finds all 6 planted takeover attempts; measured time-series design fix: 4.6x less storage.</td></tr>
+  <tr><td><b>5. Distributed and cloud</b></td><td>PostgreSQL primary and hot standby (streaming, slot, sync and async), a 3-node MongoDB replica set, monthly partitioning, CAP discussion, a sharding plan and a two-region deployment in Nigeria.</td><td>Replay lag 10 ms; sync commit blocks 5 s with the replica down; promotion 129 ms; Mongo election 0.6 s with 0 of 208 writes lost; no-majority writes refused.</td></tr>
 </table>
 
 <div class="figs">
@@ -54,7 +54,7 @@
   <figure><img src="../portfolio-3-transactions-concurrency/screenshots/demo_e_deadlock.png"><figcaption>Fig. 4: Deadlock and the lock-ordering fix (Portfolio 3)</figcaption></figure>
 </div>
 <div class="figs">
-  <figure><img src="../portfolio-2-query-optimisation/screenshots/q1_plan_after.png"><figcaption>Fig. 5: Statement query after indexing: 0.035 ms (Portfolio 2)</figcaption></figure>
+  <figure><img src="../portfolio-2-query-optimisation/screenshots/q1_plan_after.png"><figcaption>Fig. 5: Statement query after indexing: 0.033 ms (Portfolio 2)</figcaption></figure>
   <figure><img src="../portfolio-5-distributed-cloud/screenshots/mongo_failover.png"><figcaption>Fig. 6: MongoDB failover and the CAP test (Portfolio 5)</figcaption></figure>
 </div>
 
@@ -64,7 +64,7 @@
 <p><b>Lessons learned.</b> The default isolation level does not stop a read-then-write race. Lock ordering removes deadlocks completely. An index must match a query's filter <i>and</i> its sort. Synchronous replication is a deliberate choice of consistency over availability: I watched a commit block for five seconds, and that is the right behaviour for money but not for telemetry.</p>
 
 <h2>4. AI use declaration</h2>
-<p><b>Tool:</b> Claude (Anthropic), through Claude Code. <b>Used for:</b> writing the SQL, MongoDB, shell and Python scripts, generating the synthetic data, running the tests and capturing output, and drafting the README files and this document. <b>Review and verification:</b> every script was executed on PostgreSQL 14 and MongoDB 7. All figures come from saved output in each <code>evidence/</code> folder, and built-in checks confirm correctness (0 unbalanced ledger transactions, 0 balance mismatches, money conserved). Errors found during testing were corrected and re-run. I reviewed the design, ran the scripts and can explain every part of the submitted work.</p>
+<p><b>Tool:</b> Claude (Anthropic). <b>Used for:</b> writing the scripts, generating the synthetic data, running the experiments, and drafting the documentation. <b>Verification:</b> every script was run on PostgreSQL 14 and MongoDB 7, all figures come from the saved output in each <code>evidence/</code> folder, and the built-in integrity checks pass. I reviewed the work and can explain every part of it.</p>
 
 <h2>5. References</h2>
 <div class="refs">

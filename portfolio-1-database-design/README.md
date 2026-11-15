@@ -6,9 +6,9 @@ Chosen case study description, ER diagram, relational schema, keys, constraints,
 
 ## Checklist
 
-- [x] Case study description (see the [main README](../README.md#case-study-moniwallet))
+- [x] Case study description (see the [main README](../README.md#case-study-opelat-wallet))
 - [x] ER diagram: [`er-diagram.png`](er-diagram.png) (drawn by [`tools/draw_er_diagram.py`](../tools/draw_er_diagram.py)) and the Mermaid version below
-- [x] Relational schema as SQL: [`schema.sql`](schema.sql) (10 tables, schema `mw`)
+- [x] Relational schema as SQL: [`schema.sql`](schema.sql) (10 tables, schema `olw`)
 - [x] Constraints: NOT NULL, UNIQUE, CHECK, foreign keys with ON DELETE rules, plus a trigger and an integrity view
 - [x] Normalisation explanation (below)
 - [x] Evidence: [`evidence/schema_in_postgres.txt`](evidence/schema_in_postgres.txt), [`evidence/constraint_tests_output.txt`](evidence/constraint_tests_output.txt) and [`screenshots/`](screenshots/)
@@ -16,16 +16,16 @@ Chosen case study description, ER diagram, relational schema, keys, constraints,
 ## How to run
 
 ```bash
-createdb moniwallet                                              # once
-psql moniwallet -f portfolio-1-database-design/schema.sql        # build the schema
-psql moniwallet -f portfolio-1-database-design/constraint_tests.sql   # prove the constraints
+createdb opelatwallet                                              # once
+psql opelatwallet -f portfolio-1-database-design/schema.sql        # build the schema
+psql opelatwallet -f portfolio-1-database-design/constraint_tests.sql   # prove the constraints
 ```
 
 ## My work
 
 ### Entities and relationships
 
-![MoniWallet ER diagram](er-diagram.png)
+![OpeLat Wallet ER diagram](er-diagram.png)
 
 ```mermaid
 erDiagram

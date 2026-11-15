@@ -1,6 +1,6 @@
 -- Portfolio 1: each test tries to insert bad data and is EXPECTED to be rejected.
 -- Every test runs in its own transaction and is rolled back, so the database stays clean.
-SET search_path TO mw;
+SET search_path TO olw;
 \set ON_ERROR_STOP off
 \echo '=== Test 1: phone not in Nigerian format (expected: rejected)'
 BEGIN;

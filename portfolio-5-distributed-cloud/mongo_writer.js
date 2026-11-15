@@ -1,6 +1,6 @@
 // Writes one "transfer request" document every 100 ms for 25 s and reports every success or failure.
 // Run against the replica set URI; the driver finds the new primary by itself after a failover.
-db = db.getSiblingDB("moniwallet");
+db = db.getSiblingDB("opelatwallet");
 const t0 = Date.now();
 let n = 0;
 while (Date.now() - t0 < 25000) {

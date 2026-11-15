@@ -1,7 +1,7 @@
 -- =====================================================================
--- MoniWallet: Portfolio 2 indexes (each one is aimed at a specific query)
+-- OpeLat Wallet: Portfolio 2 indexes (each one is aimed at a specific query)
 -- =====================================================================
-SET search_path TO mw;
+SET search_path TO olw;
 
 -- Q1 statement: find one wallet's entries already sorted newest first, stop after 20 rows
 CREATE INDEX ix_ledger_wallet_time ON ledger_entries (wallet_id, created_at DESC, entry_id DESC);

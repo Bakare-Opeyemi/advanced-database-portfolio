@@ -5,7 +5,7 @@ DROP TABLE
 CREATE TABLE
 CREATE TABLE
 DO
-INSERT 0 454247
+INSERT 0 453757
 CREATE INDEX
 ANALYZE
 === Rows in each partition (fragment)
@@ -22,7 +22,7 @@ ANALYZE
  transactions_2026_08     | 39102
  transactions_2026_09     | 37958
  transactions_2026_10     | 39262
- transactions_2026_11     | 20540
+ transactions_2026_11     | 20050
 (12 rows)
 
 === Partition pruning: the October report only touches the October partition
@@ -39,11 +39,11 @@ ANALYZE
 === Archiving: detach an old month in milliseconds instead of a huge DELETE
 Timing is on.
 ALTER TABLE
-Time: 0.338 ms
+Time: 0.454 ms
 Timing is off.
  rows_still_in_partitioned_table 
 ---------------------------------
-                          415283
+                          414793
 (1 row)
 
  rows_now_in_detached_archive_table 
