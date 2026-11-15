@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Surname_Firstname_StudentID_Documentation</title>
+<style>
+  @page { size: A4; margin: 14mm 15mm 14mm 15mm; }
+  body { font-family: "Times New Roman", Times, serif; font-size: 10.6pt; line-height: 1.32; color: #111; }
+  h1 { font-size: 14.5pt; text-align: center; margin: 0 0 2pt; color: #1f3b5c; }
+  .sub { text-align: center; font-size: 10pt; margin: 0 0 6pt; }
+  table { border-collapse: collapse; width: 100%; font-size: 9.2pt; margin: 3pt 0 5pt; }
+  th { background: #1f3b5c; color: #fff; padding: 2.5pt 4pt; text-align: left; }
+  td { border: 1px solid #b9c4d2; padding: 2.5pt 4pt; vertical-align: top; }
+  table.id td:nth-child(odd) { font-weight: bold; background: #eef3f9; width: 16%; }
+  h2 { font-size: 11.5pt; color: #1f3b5c; margin: 8pt 0 3pt; border-bottom: 1px solid #c8d3e0; padding-bottom: 1pt; page-break-after: avoid; }
+  p { margin: 0 0 4.5pt; text-align: justify; }
+  ul { margin: 0 0 4pt 15pt; padding: 0; } li { margin-bottom: 1.5pt; text-align: justify; }
+  .figs { display: flex; gap: 6pt; margin: 4pt 0 2pt; page-break-inside: avoid; }
+  .figs figure { margin: 0; flex: 1; text-align: center; }
+  .figs img { width: 100%; border: 1px solid #ccd; }
+  figcaption { font-size: 8.3pt; color: #444; margin-top: 1pt; }
+  .refs p { padding-left: 16pt; text-indent: -16pt; font-size: 9pt; text-align: left; margin-bottom: 1.5pt; }
+  a { color: #1f3b5c; }
+  code { font-family: Menlo, monospace; font-size: 8.6pt; }
+</style>
+</head>
+<body>
+<h1>Advanced Database Systems Portfolio: MoniWallet</h1>
+<p class="sub">MIT 8103 Advanced Database Systems: First Semester Continuous Assessment (Individual Practical Database Portfolio)</p>
+<table class="id">
+  <tr><td>Full name</td><td>Abdullateef Opeyemi Bakare</td></tr>
+  <tr><td>Programme</td><td>MSc Information Technology</td><td>GitHub</td><td><a href="https://github.com/Bakare-Opeyemi/advanced-database-portfolio">github.com/Bakare-Opeyemi/advanced-database-portfolio</a> (private)</td></tr>
+</table>
+
+<h2>1. Selected case study: MoniWallet</h2>
+<p><b>MoniWallet</b> is a simulated Nigerian mobile money operator (all data is generated). Customers hold a wallet linked to their phone number. They fund it from a bank or an agent, transfer money, pay bills and withdraw cash at agents. <b>Users:</b> customers (app and USSD), agents, support staff, compliance officers (KYC and anti-money-laundering), finance staff and auditors. <b>Major data:</b> customers and KYC documents, wallets and balances, transactions, a double-entry ledger, agents, billers, AML flags, devices, sessions and app telemetry. <b>Key operations:</b> register and verify a customer, fund a wallet, transfer, pay a bill, reverse a failed transaction, produce a statement, flag suspicious activity and reconcile balances. The same case study and the same IDs are used in all five activities.</p>
+
+<h2>2. Portfolio activities</h2>
+<table>
+  <tr><th style="width:17%">Activity</th><th>What was built</th><th style="width:34%">Key evidence</th></tr>
+  <tr><td><b>1. Design and modelling</b></td><td>10-table PostgreSQL schema with a double-entry ledger, surrogate keys plus protected natural keys, CHECK rules per transaction type, an audit trigger and an integrity view. Normalised to 3NF, with two documented, controlled redundancies (stored balance, balance-after).</td><td>ER diagram; all 9 bad-data tests rejected by the intended constraint.</td></tr>
+  <tr><td><b>2. Query optimisation</b></td><td>50,000 customers, 450,000 transactions, 1,072,441 ledger lines. 8 business queries measured with <code>EXPLAIN (ANALYZE, BUFFERS)</code>, median of 7 runs, before and after targeted indexes: composite, trigram GIN, partial, BRIN and covering.</td><td>Statement 53.1 to 0.035 ms; stuck-payments alert 36.6 to 0.004 ms; biller report 41.4 to 2.7 ms (Index Only Scan). BRIN is 24 kB against 9.9 MB for a B-tree.</td></tr>
+  <tr><td><b>3. Transactions and concurrency</b></td><td><code>transfer_funds()</code> locks both wallets in id order, checks after locking, and writes the transaction, ledger and balances atomically. Demos: commit, rollback, savepoint, lost update, <code>FOR UPDATE</code>, REPEATABLE READ with retry, non-repeatable read, deadlock.</td><td>Lost update reproduced (14,000 paid, balance 3,000) and fixed; deadlock <code>40P01</code> removed by lock ordering; 16 threads, 4,000 attempts: money conserved, 0 negative balances.</td></tr>
+  <tr><td><b>4. NoSQL models</b></td><td>MongoDB 7: profiles as <b>documents</b> with embedded devices and <code>$jsonSchema</code> validation; sessions as <b>key-value</b> with a TTL index; telemetry as a <b>time-series</b> collection; transfers as a <b>graph</b> traversed with <code>$graphLookup</code>.</td><td>Login lookup 50,000 docs to 1 doc examined; fraud query finds all 6 planted takeover attempts; measured time-series design fix: 10x less storage.</td></tr>
+  <tr><td><b>5. Distributed and cloud</b></td><td>PostgreSQL primary and hot standby (streaming, slot, sync and async), a 3-node MongoDB replica set, monthly partitioning, CAP discussion, a sharding plan and a two-region deployment in Nigeria.</td><td>Replay lag 8 ms; sync commit blocks 5 s with the replica down; promotion 131 ms; Mongo election 0.5 s with 0 of 208 writes lost; no-majority writes refused.</td></tr>
+</table>
+
+<div class="figs">
+  <figure><img src="../portfolio-1-database-design/er-diagram.png"><figcaption>Fig. 1: ER diagram (Portfolio 1)</figcaption></figure>
+  <figure><img src="../portfolio-5-distributed-cloud/architecture.png"><figcaption>Fig. 2: Proposed deployment (Portfolio 5)</figcaption></figure>
+</div>
+<div class="figs">
+  <figure><img src="../portfolio-3-transactions-concurrency/screenshots/demo_a_lost_update.png"><figcaption>Fig. 3: Lost update reproduced (Portfolio 3)</figcaption></figure>
+  <figure><img src="../portfolio-3-transactions-concurrency/screenshots/demo_e_deadlock.png"><figcaption>Fig. 4: Deadlock and the lock-ordering fix (Portfolio 3)</figcaption></figure>
+</div>
+<div class="figs">
+  <figure><img src="../portfolio-2-query-optimisation/screenshots/q1_plan_after.png"><figcaption>Fig. 5: Statement query after indexing: 0.035 ms (Portfolio 2)</figcaption></figure>
+  <figure><img src="../portfolio-5-distributed-cloud/screenshots/mongo_failover.png"><figcaption>Fig. 6: MongoDB failover and the CAP test (Portfolio 5)</figcaption></figure>
+</div>
+
+<h2>3. Individual technical reflection</h2>
+<p><b>Design choices.</b> I separated the business event (<code>transactions</code>) from the money movement (<code>ledger_entries</code>) so that every transfer must balance. This made later work easier: a single view proves integrity after every experiment, including the stress test and the failover. I kept money in PostgreSQL and moved profiles, sessions and telemetry to MongoDB, because each store is strongest at different things (polyglot persistence).</p>
+<p><b>Challenges.</b> Several results looked right at first but were wrong, and checking them taught me the most. A name search showed no gain from an index, because common surnames are found quickly anyway, so I changed it to a realistic rare search (last six phone digits). My first MongoDB data generator repeated patterns and produced fake fraud signals. My first time-series design created 144,408 buckets for 160,055 events. A replication test exposed that <code>transfer_funds</code> depended on the session's <code>search_path</code>, which I fixed by pinning it in the function.</p>
+<p><b>Lessons learned.</b> The default isolation level does not stop a read-then-write race. Lock ordering removes deadlocks completely. An index must match a query's filter <i>and</i> its sort. Synchronous replication is a deliberate choice of consistency over availability: I watched a commit block for five seconds, and that is the right behaviour for money but not for telemetry.</p>
+
+<h2>4. AI use declaration</h2>
+<p><b>Tool:</b> Claude (Anthropic), through Claude Code. <b>Used for:</b> writing the SQL, MongoDB, shell and Python scripts, generating the synthetic data, running the tests and capturing output, and drafting the README files and this document. <b>Review and verification:</b> every script was executed on PostgreSQL 14 and MongoDB 7. All figures come from saved output in each <code>evidence/</code> folder, and built-in checks confirm correctness (0 unbalanced ledger transactions, 0 balance mismatches, money conserved). Errors found during testing were corrected and re-run. I reviewed the design, ran the scripts and can explain every part of the submitted work.</p>
+
+<h2>5. References</h2>
+<div class="refs">
+<p>Brewer, E. (2012) 'CAP twelve years later: How the "rules" have changed', <i>Computer</i>, 45(2), pp. 23-29.</p>
+<p>Elmasri, R. and Navathe, S. B. (2016) <i>Fundamentals of Database Systems</i>. 7th edn. Pearson.</p>
+<p>Federal Republic of Nigeria (2023) <i>Nigeria Data Protection Act, 2023</i>.</p>
+<p>Kleppmann, M. (2017) <i>Designing Data-Intensive Applications</i>. O'Reilly Media.</p>
+<p>Miva Open University (2026) <i>MIT 8103 Advanced Database Systems</i> course materials, Weeks 1-6.</p>
+<p>MongoDB, Inc. (2024) <i>MongoDB Manual 7.0</i>. Available at: https://www.mongodb.com/docs/v7.0/</p>
+<p>PostgreSQL Global Development Group (2024) <i>PostgreSQL 14 Documentation</i>. Available at: https://www.postgresql.org/docs/14/</p>
+</div>
+</body>
+</html>
