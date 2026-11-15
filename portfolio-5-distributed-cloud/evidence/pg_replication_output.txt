@@ -1,0 +1,77 @@
+
+=== STEP 1: create the primary (port 5442) and the replica (port 5443)
+primary in recovery? f   replica in recovery? t
+ application_name |   state   | sync_state | client_addr 
+------------------+-----------+------------+-------------
+ replica1         | streaming | async      | 127.0.0.1
+(1 row)
+
+
+=== STEP 2: a transfer committed on the PRIMARY appears on the REPLICA
+ customer | wallet_id | balance  
+----------+-----------+----------
+ Ada      |         4 | 10000.00
+ Tunde    |         5 | 10000.00
+(2 rows)
+
+transfer 6 committed on primary; visible on replica after about 42 ms (includes psql start-up time)
+--- reading the balances FROM THE REPLICA:
+ customer | wallet_id | balance  
+----------+-----------+----------
+ Ada      |         4 |  7500.00
+ Tunde    |         5 | 12500.00
+(2 rows)
+
+ application_name |    write_lag    |    flush_lag    |   replay_lag    
+------------------+-----------------+-----------------+-----------------
+ replica1         | 00:00:00.007676 | 00:00:00.007677 | 00:00:00.008074
+(1 row)
+
+
+=== STEP 3: the replica is read-only (hot standby)
+ERROR:  cannot execute SELECT FOR UPDATE in a read-only transaction
+CONTEXT:  SQL statement "SELECT 1 FROM wallets WHERE wallet_id IN (p_from, p_to) ORDER BY wallet_id FOR UPDATE"
+
+=== STEP 4: asynchronous vs synchronous commit, 300 small transfers each
+--- synchronous_standby_names = '' (ASYNC: commit returns once the PRIMARY has it on disk)
+average commit time: 0.27 ms per transfer
+ application_name |   state   | sync_state 
+------------------+-----------+------------
+ replica1         | streaming | sync
+(1 row)
+
+--- synchronous_standby_names = 'replica1' (SYNC: commit waits until the REPLICA also has it)
+average commit time: 0.45 ms per transfer
+
+=== STEP 5: CAP in practice. Stop the replica while commits are synchronous
+replica stopped
+COMMIT was BLOCKED for 5.0 s waiting for the replica, until the client cancelled the wait
+server WARNING:  canceling wait for synchronous replication due to user request
+DETAIL:  The transaction has already committed locally, but might not have been replicated to the standby.
+--- is the transfer on the primary anyway?
+ txn_id |           narration           |   status   
+--------+-------------------------------+------------
+    607 | Sync commit with replica down | successful
+(1 row)
+
+--- choose availability instead: go back to asynchronous commit
+async commit with the replica down returned in 30 ms
+
+=== STEP 6: failover. The primary fails and the replica is promoted
+replica restarted and caught up: 2 of 2 transfers made while it was down
+primary on 5442 killed (immediate stop, like a crash)
+replica promoted in 131 ms; in recovery now? f
+ new_txn 
+---------
+     633
+(1 row)
+
+ customer | wallet_id | balance  
+----------+-----------+----------
+ Ada      |         4 |  7325.00
+ Tunde    |         5 | 12675.00
+(2 rows)
+
+unbalanced ledger transactions after failover: 0
+
+lab servers stopped

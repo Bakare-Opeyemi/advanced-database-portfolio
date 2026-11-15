@@ -1,0 +1,55 @@
+SET
+SET
+psql:portfolio-5-distributed-cloud/partitioning_demo.sql:6: NOTICE:  table "transactions_by_month" does not exist, skipping
+DROP TABLE
+CREATE TABLE
+CREATE TABLE
+DO
+INSERT 0 454247
+CREATE INDEX
+ANALYZE
+=== Rows in each partition (fragment)
+        partition         | rows  
+--------------------------+-------
+ transactions_before_2026 | 50000
+ transactions_2026_01     | 38964
+ transactions_2026_02     | 34938
+ transactions_2026_03     | 39096
+ transactions_2026_04     | 37715
+ transactions_2026_05     | 39170
+ transactions_2026_06     | 38229
+ transactions_2026_07     | 39273
+ transactions_2026_08     | 39102
+ transactions_2026_09     | 37958
+ transactions_2026_10     | 39262
+ transactions_2026_11     | 20540
+(12 rows)
+
+=== Partition pruning: the October report only touches the October partition
+                                                                                              QUERY PLAN                                                                                              
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ HashAggregate (actual rows=4 loops=1)
+   Group Key: transactions_by_month.txn_type
+   Batches: 1  Memory Usage: 24kB
+   ->  Seq Scan on transactions_2026_10 transactions_by_month (actual rows=38458 loops=1)
+         Filter: ((created_at >= '2026-10-01 00:00:00+01'::timestamp with time zone) AND (created_at < '2026-11-01 00:00:00+01'::timestamp with time zone) AND ((status)::text = 'successful'::text))
+         Rows Removed by Filter: 804
+(6 rows)
+
+=== Archiving: detach an old month in milliseconds instead of a huge DELETE
+Timing is on.
+ALTER TABLE
+Time: 0.338 ms
+Timing is off.
+ rows_still_in_partitioned_table 
+---------------------------------
+                          415283
+(1 row)
+
+ rows_now_in_detached_archive_table 
+------------------------------------
+                              38964
+(1 row)
+
+DROP TABLE
+DROP TABLE

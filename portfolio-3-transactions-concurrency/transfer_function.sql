@@ -12,7 +12,10 @@ CREATE OR REPLACE FUNCTION transfer_funds(
     p_channel   VARCHAR DEFAULT 'app',
     p_narration VARCHAR DEFAULT 'Transfer'
 ) RETURNS BIGINT
-LANGUAGE plpgsql AS $$
+LANGUAGE plpgsql
+SET search_path = mw          -- pin the schema: works from any session, and cannot be hijacked by a
+                              -- table of the same name in another schema
+AS $$
 DECLARE
     v_fee      NUMERIC(18,2) := CASE WHEN p_amount > 5000 THEN 10 ELSE 0 END;
     v_from     wallets%ROWTYPE;
