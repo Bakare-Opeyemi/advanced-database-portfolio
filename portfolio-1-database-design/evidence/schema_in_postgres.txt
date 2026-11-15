@@ -1,0 +1,90 @@
+            List of relations
+ Schema |      Name      | Type  | Owner 
+--------+----------------+-------+-------
+ mw     | agents         | table | pc
+ mw     | aml_flags      | table | pc
+ mw     | audit_log      | table | pc
+ mw     | billers        | table | pc
+ mw     | customers      | table | pc
+ mw     | kyc_documents  | table | pc
+ mw     | ledger_entries | table | pc
+ mw     | staff          | table | pc
+ mw     | transactions   | table | pc
+ mw     | wallets        | table | pc
+(10 rows)
+
+                                              Table "mw.wallets"
+   Column    |           Type           | Collation | Nullable |                    Default                    
+-------------+--------------------------+-----------+----------+-----------------------------------------------
+ wallet_id   | bigint                   |           | not null | nextval('mw.wallets_wallet_id_seq'::regclass)
+ wallet_type | character varying(10)    |           | not null | 
+ customer_id | bigint                   |           |          | 
+ label       | character varying(60)    |           |          | 
+ currency    | character(3)             |           | not null | 'NGN'::bpchar
+ balance     | numeric(18,2)            |           | not null | 0
+ daily_limit | numeric(18,2)            |           | not null | 50000
+ status      | character varying(10)    |           | not null | 'active'::character varying
+ created_at  | timestamp with time zone |           | not null | now()
+Indexes:
+    "wallets_pkey" PRIMARY KEY, btree (wallet_id)
+    "wallets_customer_id_currency_key" UNIQUE CONSTRAINT, btree (customer_id, currency)
+Check constraints:
+    "wallets_check" CHECK ((wallet_type::text = 'customer'::text) = (customer_id IS NOT NULL))
+    "wallets_check1" CHECK (balance >= 0::numeric OR wallet_type::text = 'system'::text)
+    "wallets_daily_limit_check" CHECK (daily_limit > 0::numeric)
+    "wallets_status_check" CHECK (status::text = ANY (ARRAY['active'::character varying, 'frozen'::character varying, 'closed'::character varying]::text[]))
+    "wallets_wallet_type_check" CHECK (wallet_type::text = ANY (ARRAY['customer'::character varying, 'agent'::character varying, 'system'::character varying]::text[]))
+Foreign-key constraints:
+    "wallets_customer_id_fkey" FOREIGN KEY (customer_id) REFERENCES mw.customers(customer_id) ON DELETE RESTRICT
+Referenced by:
+    TABLE "mw.agents" CONSTRAINT "agents_wallet_id_fkey" FOREIGN KEY (wallet_id) REFERENCES mw.wallets(wallet_id)
+    TABLE "mw.ledger_entries" CONSTRAINT "ledger_entries_wallet_id_fkey" FOREIGN KEY (wallet_id) REFERENCES mw.wallets(wallet_id)
+    TABLE "mw.transactions" CONSTRAINT "transactions_dest_wallet_id_fkey" FOREIGN KEY (dest_wallet_id) REFERENCES mw.wallets(wallet_id)
+    TABLE "mw.transactions" CONSTRAINT "transactions_source_wallet_id_fkey" FOREIGN KEY (source_wallet_id) REFERENCES mw.wallets(wallet_id)
+Triggers:
+    trg_wallet_status AFTER UPDATE OF status ON mw.wallets FOR EACH ROW EXECUTE FUNCTION mw.log_wallet_status()
+
+                                               Table "mw.transactions"
+      Column      |           Type           | Collation | Nullable |                     Default                     
+------------------+--------------------------+-----------+----------+-------------------------------------------------
+ txn_id           | bigint                   |           | not null | nextval('mw.transactions_txn_id_seq'::regclass)
+ reference        | uuid                     |           | not null | gen_random_uuid()
+ txn_type         | character varying(12)    |           | not null | 
+ status           | character varying(10)    |           | not null | 'pending'::character varying
+ channel          | character varying(6)     |           | not null | 
+ amount           | numeric(18,2)            |           | not null | 
+ fee              | numeric(18,2)            |           | not null | 0
+ source_wallet_id | bigint                   |           |          | 
+ dest_wallet_id   | bigint                   |           |          | 
+ biller_id        | integer                  |           |          | 
+ agent_id         | integer                  |           |          | 
+ reversal_of      | bigint                   |           |          | 
+ narration        | character varying(140)   |           |          | 
+ created_at       | timestamp with time zone |           | not null | now()
+ completed_at     | timestamp with time zone |           |          | 
+Indexes:
+    "transactions_pkey" PRIMARY KEY, btree (txn_id)
+    "transactions_reference_key" UNIQUE CONSTRAINT, btree (reference)
+Check constraints:
+    "transactions_amount_check" CHECK (amount > 0::numeric)
+    "transactions_channel_check" CHECK (channel::text = ANY (ARRAY['app'::character varying, 'ussd'::character varying, 'agent'::character varying]::text[]))
+    "transactions_check" CHECK (txn_type::text <> 'transfer'::text OR source_wallet_id IS NOT NULL AND dest_wallet_id IS NOT NULL AND source_wallet_id <> dest_wallet_id)
+    "transactions_check1" CHECK (txn_type::text <> 'bill_payment'::text OR source_wallet_id IS NOT NULL AND biller_id IS NOT NULL)
+    "transactions_check2" CHECK (txn_type::text <> 'deposit'::text OR dest_wallet_id IS NOT NULL)
+    "transactions_check3" CHECK (txn_type::text <> 'withdrawal'::text OR source_wallet_id IS NOT NULL)
+    "transactions_check4" CHECK (txn_type::text <> 'reversal'::text OR reversal_of IS NOT NULL)
+    "transactions_check5" CHECK (completed_at IS NULL OR completed_at >= created_at)
+    "transactions_fee_check" CHECK (fee >= 0::numeric)
+    "transactions_status_check" CHECK (status::text = ANY (ARRAY['pending'::character varying, 'successful'::character varying, 'failed'::character varying, 'reversed'::character varying]::text[]))
+    "transactions_txn_type_check" CHECK (txn_type::text = ANY (ARRAY['deposit'::character varying, 'withdrawal'::character varying, 'transfer'::character varying, 'bill_payment'::character varying, 'reversal'::character varying]::text[]))
+Foreign-key constraints:
+    "transactions_agent_id_fkey" FOREIGN KEY (agent_id) REFERENCES mw.agents(agent_id)
+    "transactions_biller_id_fkey" FOREIGN KEY (biller_id) REFERENCES mw.billers(biller_id)
+    "transactions_dest_wallet_id_fkey" FOREIGN KEY (dest_wallet_id) REFERENCES mw.wallets(wallet_id)
+    "transactions_reversal_of_fkey" FOREIGN KEY (reversal_of) REFERENCES mw.transactions(txn_id)
+    "transactions_source_wallet_id_fkey" FOREIGN KEY (source_wallet_id) REFERENCES mw.wallets(wallet_id)
+Referenced by:
+    TABLE "mw.aml_flags" CONSTRAINT "aml_flags_txn_id_fkey" FOREIGN KEY (txn_id) REFERENCES mw.transactions(txn_id)
+    TABLE "mw.ledger_entries" CONSTRAINT "ledger_entries_txn_id_fkey" FOREIGN KEY (txn_id) REFERENCES mw.transactions(txn_id)
+    TABLE "mw.transactions" CONSTRAINT "transactions_reversal_of_fkey" FOREIGN KEY (reversal_of) REFERENCES mw.transactions(txn_id)
+
