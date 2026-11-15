@@ -1,6 +1,6 @@
 # Final documentation (6 marks)
 
-The LMS submission is a 2 to 3 page document: [`Surname_Firstname_StudentID_Documentation.pdf`](Surname_Firstname_StudentID_Documentation.pdf) (3 pages). Its source is [`documentation.html`](documentation.html), printed to PDF with Chrome.
+The LMS submission is a 2 to 3 page summary. This repository holds the public copy, [`OpeLat_Wallet_Portfolio_Summary.pdf`](OpeLat_Wallet_Portfolio_Summary.pdf) (3 pages), with the student ID and email withheld; the copy submitted on the LMS includes them. Its source is [`documentation.html`](documentation.html), printed to PDF with Chrome.
 
 - [x] The selected case study (OpeLat Wallet)
 - [x] All five portfolio activities, with key screenshots or evidence
