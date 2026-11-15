@@ -1,0 +1,101 @@
+SET
+=== STEP 1: starting balances
+ customer | wallet_id | balance  
+----------+-----------+----------
+ Ada      |     50435 | 10000.00
+ Tunde    |     50436 | 10000.00
+ Musa     |     50437 | 10000.00
+(3 rows)
+
+=== STEP 2: Ada sends 3,000 to Tunde inside BEGIN ... COMMIT
+BEGIN
+ txn_id 
+--------
+ 450597
+(1 row)
+
+--- inside the transaction, before COMMIT, Ada sees her new balance:
+ customer | wallet_id | balance  
+----------+-----------+----------
+ Ada      |     50435 |  7000.00
+ Tunde    |     50436 | 13000.00
+(2 rows)
+
+COMMIT
+--- after COMMIT (the change is now permanent and visible to everyone):
+ customer | wallet_id | balance  
+----------+-----------+----------
+ Ada      |     50435 |  7000.00
+ Tunde    |     50436 | 13000.00
+(2 rows)
+
+=== STEP 3: Ada tries to send 50,000 (she has 7,000): the function raises an error
+BEGIN
+psql:portfolio-3-transactions-concurrency/demo_commit_rollback.sql:26: ERROR:  insufficient funds: balance 7000.00, needed 50010.00
+CONTEXT:  PL/pgSQL function transfer_funds(bigint,bigint,numeric,character varying,character varying) line 27 at RAISE
+--- the transaction is now aborted, so any further statement is refused:
+psql:portfolio-3-transactions-concurrency/demo_commit_rollback.sql:28: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+ROLLBACK
+--- after ROLLBACK: balances unchanged, and no transfer row was written
+ customer | wallet_id | balance  
+----------+-----------+----------
+ Ada      |     50435 |  7000.00
+ Tunde    |     50436 | 13000.00
+(2 rows)
+
+ failed_rows_written 
+---------------------
+                   0
+(1 row)
+
+=== STEP 4: explicit ROLLBACK of a transfer that would have worked
+BEGIN
+ txn_id 
+--------
+ 450598
+(1 row)
+
+ customer | wallet_id | balance  
+----------+-----------+----------
+ Tunde    |     50436 | 12000.00
+ Musa     |     50437 | 11000.00
+(2 rows)
+
+ROLLBACK
+--- after ROLLBACK, the 1,000 transfer is gone:
+ customer | wallet_id | balance  
+----------+-----------+----------
+ Tunde    |     50436 | 13000.00
+ Musa     |     50437 | 10000.00
+(2 rows)
+
+=== STEP 5: SAVEPOINT. A batch of two payments where only the second fails
+BEGIN
+ item1_txn 
+-----------
+    450599
+(1 row)
+
+SAVEPOINT
+psql:portfolio-3-transactions-concurrency/demo_commit_rollback.sql:46: ERROR:  insufficient funds: balance 11000.00, needed 1000009.00
+CONTEXT:  PL/pgSQL function transfer_funds(bigint,bigint,numeric,character varying,character varying) line 27 at RAISE
+--- item 2 failed; roll back to the savepoint and keep item 1
+ROLLBACK
+COMMIT
+ customer | wallet_id | balance  
+----------+-----------+----------
+ Tunde    |     50436 | 11000.00
+ Musa     |     50437 | 12000.00
+(2 rows)
+
+  narration   | amount  |   status   
+--------------+---------+------------
+ Batch item 1 | 2000.00 | successful
+(1 row)
+
+=== STEP 6: integrity check, every transaction still balances (expect 0)
+ unbalanced_transactions 
+-------------------------
+                       0
+(1 row)
+

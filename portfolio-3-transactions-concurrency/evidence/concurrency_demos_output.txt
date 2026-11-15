@@ -1,0 +1,75 @@
+
+==============================================================================
+=== Demo A: LOST UPDATE with a naive read-then-write (READ COMMITTED)
+==============================================================================
+[  0.00s]     Halima's wallet starts at 10,000. Two cash-outs of 7,000 arrive at the same moment.
+[  0.01s] S1  reads balance = 10000.00
+[  0.01s] S2  reads balance = 10000.00
+[  0.01s] S1  enough money, writes balance = 3000.00
+[  0.01s] S1  COMMIT
+[  0.01s] S2  enough money (based on its OLD read), writes balance = 3000.00
+[  0.01s] S2  COMMIT
+[  0.01s]     RESULT: 14,000 was paid out but the balance shows 3000.00. S1's update was LOST.
+
+==============================================================================
+=== Demo B: FIX 1, pessimistic locking with SELECT ... FOR UPDATE
+==============================================================================
+[  0.00s]     Same two 7,000 cash-outs, but each session locks the row before reading it.
+[  0.00s] S1  SELECT balance ... FOR UPDATE
+[  0.00s] S1  got the lock after 0.00s, reads balance = 10000.00
+[  0.01s] S1  writes balance = 3000.00
+[  0.21s] S2  SELECT balance ... FOR UPDATE
+[  1.01s] S1  COMMIT (releases the lock)
+[  1.01s] S2  got the lock after 0.80s, reads balance = 3000.00
+[  1.01s] S2  REJECTED: insufficient funds, ROLLBACK
+[  1.02s]     RESULT: balance = 3000.00. S2 waited for S1's lock, saw 3,000 and correctly refused.
+
+==============================================================================
+=== Demo C: FIX 2, REPEATABLE READ detects the conflict and the app retries
+==============================================================================
+[  0.02s] S1  (REPEATABLE READ) reads balance = 10000.00
+[  0.02s] S2  (REPEATABLE READ) reads balance = 10000.00
+[  0.02s] S1  UPDATE balance = balance - 7000
+[  0.02s] S1  COMMIT
+[  0.02s] S2  ERROR 40001: could not serialize access due to concurrent update
+[  0.02s] S2  ROLLBACK, then RETRY in a new transaction
+[  0.02s] S2  retry reads balance = 3000.00
+[  0.02s] S2  REJECTED: insufficient funds
+[  0.03s]     RESULT: balance = 3000.00. No lost update; the conflict was detected instead of hidden.
+
+==============================================================================
+=== Demo D: NON-REPEATABLE READ, READ COMMITTED vs REPEATABLE READ
+==============================================================================
+--- S1 runs a report at READ COMMITTED
+[  0.01s] S1  first read  = 10000.00
+[  0.01s] S2  deposits 5,000 and COMMITs
+[  0.01s] S1  second read = 15000.00  (same transaction)
+--- S1 runs a report at REPEATABLE READ
+[  0.02s] S1  first read  = 10000.00
+[  0.02s] S2  deposits 5,000 and COMMITs
+[  0.02s] S1  second read = 10000.00  (same transaction)
+[  0.02s]     RESULT: READ COMMITTED saw two different values; REPEATABLE READ kept one consistent snapshot.
+
+==============================================================================
+=== Demo E: DEADLOCK from opposite lock order, then the fix
+==============================================================================
+--- naive code: S1 transfers Ada->Tunde, S2 transfers Tunde->Ada, each locks its source first
+[  0.01s] S1  locked wallet 50435
+[  0.01s] S2  locked wallet 50436
+[  0.01s] S2  now wants wallet 50435 ...
+[  0.01s] S1  now wants wallet 50436 ...
+[  1.08s] S2  ERROR 40P01: deadlock detected, PostgreSQL killed this transaction
+[  1.08s] S1  COMMIT
+--- fixed code: both call transfer_funds(), which always locks the lower wallet_id first
+[  1.62s] S1  transfer 50435->50436 COMMIT
+[  2.13s] S2  transfer 50436->50435 COMMIT
+[  2.13s]     RESULT: no deadlock. The second session simply waited for the first.
+
+==============================================================================
+=== Demo F: STRESS TEST, 16 threads x 250 random transfers through transfer_funds
+==============================================================================
+[  0.01s]     40 wallets + fee wallet hold 16,988,690.00 in total before the test
+[  1.92s]     3703 transfers committed, 297 correctly rejected (297 insufficient funds, 0 daily limit), 0 other errors
+[  1.92s]     4000 attempts in 1.1s (3694 attempts per second)
+[  1.92s]     total money before = 16,988,690.00   after = 16,988,690.00   CONSERVED
+[  1.92s]     negative customer balances = 0, unbalanced ledger transactions = 0
