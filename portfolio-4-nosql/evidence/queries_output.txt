@@ -1,0 +1,51 @@
+
+=== N1: Login lookup. Find a customer's profile (with embedded devices) by phone
+BEFORE index: plan=COLLSCAN  docsExamined=50000  keysExamined=0  timeMs=9
+AFTER  index: plan=FETCH <- IXSCAN  docsExamined=1  keysExamined=1  timeMs=3
+{"_id":12345,"phone":"+2348000012345","name":{"first":"Nkechi","last":"Umar"},"state":"Ogun","kycTier":2,"walletId":12348,"createdAt":{"$date":"2025-01-29T07:28:04Z"},"devices":[{"deviceId":"dev-12345-1","os":"Android","model":"Redmi 12","trusted":true,"firstSeen":{"$date":"2025-03-10T07:28:04Z"}},{"deviceId":"dev-12345-2","os":"Android","model":"Samsung Galaxy A14","trusted":false,"firstSeen":{"$date":"2025-04-19T07:28:04Z"}}],"notifications":{"sms":true,"push":false,"email":true}}
+
+=== N2: Marketing. Lagos customers who have an iOS device that is not yet trusted (query inside an embedded array)
+plan=FETCH <- IXSCAN  docsExamined=3147  keysExamined=3147  timeMs=9
+matching customers: 1710
+
+=== N3: Fraud. Bursts of 5+ failed PINs in the last 24 hours, and whether the device is one we know
+{"failedPins":11,"customerId":6005,"name":"Babatunde Balogun","deviceId":"dev-unknown-6005","minutes":30,"knownDevice":false}
+{"failedPins":10,"customerId":4804,"name":"Chioma Nnamdi","deviceId":"dev-unknown-4804","minutes":27,"knownDevice":false}
+{"failedPins":9,"customerId":1201,"name":"Kemi Eze","deviceId":"dev-unknown-1201","minutes":24,"knownDevice":false}
+{"failedPins":9,"customerId":2402,"name":"Hauwa Aliyu","deviceId":"dev-unknown-2402","minutes":24,"knownDevice":false}
+{"failedPins":8,"customerId":3603,"name":"Aisha Olaniyan","deviceId":"dev-unknown-3603","minutes":21,"knownDevice":false}
+{"failedPins":8,"customerId":7206,"name":"Temitope Adeyemi","deviceId":"dev-unknown-7206","minutes":21,"knownDevice":false}
+
+=== N4: Operations. Logins per channel per day (time-series aggregation)
+{"logins":3874,"day":"2026-11-07","channel":"app"}
+{"logins":2536,"day":"2026-11-07","channel":"ussd"}
+{"logins":3936,"day":"2026-11-08","channel":"app"}
+{"logins":2590,"day":"2026-11-08","channel":"ussd"}
+{"logins":4019,"day":"2026-11-09","channel":"app"}
+{"logins":2569,"day":"2026-11-09","channel":"ussd"}
+{"logins":3864,"day":"2026-11-10","channel":"app"}
+{"logins":2571,"day":"2026-11-10","channel":"ussd"}
+{"logins":3889,"day":"2026-11-11","channel":"app"}
+{"logins":2555,"day":"2026-11-11","channel":"ussd"}
+{"logins":3950,"day":"2026-11-12","channel":"app"}
+{"logins":2501,"day":"2026-11-12","channel":"ussd"}
+{"logins":3976,"day":"2026-11-13","channel":"app"}
+{"logins":2593,"day":"2026-11-13","channel":"ussd"}
+app_events is a timeseries collection; storage buckets: 144408 for 160055 events
+
+=== N5: AML graph. Follow the money from one wallet for up to 3 hops with $graphLookup
+start wallet (most outgoing transfers in the last 30 days): 1206
+{"transfers":5,"hop":1,"walletsReached":5,"value":445700}
+{"transfers":2,"hop":2,"walletsReached":2,"value":164600}
+
+=== N6: Schema validation. A profile with a badly formatted phone number is rejected
+REJECTED: Document failed validation (code 121)
+
+=== N7: Atomic update of one element inside the embedded array (trust a device after OTP check)
+[{"deviceId":"dev-1-1","trusted":true},{"deviceId":"dev-1-2","trusted":false}]
+matched=1 modified=1
+[{"deviceId":"dev-1-1","trusted":true},{"deviceId":"dev-1-2","trusted":true}]
+
+=== N8: TTL index. A session that expires in 5 seconds is deleted automatically
+just inserted, found: 1
+after 14 s, found: 0  (the TTL monitor runs every 60 s)

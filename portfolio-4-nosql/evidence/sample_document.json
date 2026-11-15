@@ -1,0 +1,33 @@
+{
+  _id: 12345,
+  phone: '+2348000012345',
+  name: {
+    first: 'Nkechi',
+    last: 'Umar'
+  },
+  state: 'Ogun',
+  kycTier: 2,
+  walletId: 12348,
+  createdAt: ISODate('2025-01-29T07:28:04.000Z'),
+  devices: [
+    {
+      deviceId: 'dev-12345-1',
+      os: 'Android',
+      model: 'Redmi 12',
+      trusted: true,
+      firstSeen: ISODate('2025-03-10T07:28:04.000Z')
+    },
+    {
+      deviceId: 'dev-12345-2',
+      os: 'Android',
+      model: 'Samsung Galaxy A14',
+      trusted: false,
+      firstSeen: ISODate('2025-04-19T07:28:04.000Z')
+    }
+  ],
+  notifications: {
+    sms: true,
+    push: false,
+    email: true
+  }
+}

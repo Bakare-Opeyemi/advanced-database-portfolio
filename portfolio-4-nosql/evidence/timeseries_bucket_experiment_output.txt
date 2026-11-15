@@ -1,0 +1,2 @@
+meta = {customerId, channel}: {"events":160055,"buckets":144408,"storageKB":11272}
+meta = channel only        : {"events":160055,"buckets":4247,"storageKB":1116}

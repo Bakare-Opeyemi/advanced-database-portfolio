@@ -1,0 +1,16 @@
+# MongoDB node configuration for the MoniWallet replica set "mwrs".
+# start_mongo_replicaset.sh fills in PORT and LAB for each of the 3 nodes.
+net:
+  port: PORT
+  bindIp: 127.0.0.1
+storage:
+  dbPath: LAB/mongo-PORT
+systemLog:
+  destination: file
+  path: LAB/mongo-PORT.log
+  logAppend: true
+processManagement:
+  fork: true
+  pidFilePath: LAB/mongo-PORT.pid
+replication:
+  replSetName: mwrs
